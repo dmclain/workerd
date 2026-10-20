@@ -189,6 +189,51 @@ export const textEncoderTest = {
   },
 };
 
+export const textEncoderInterfaceTest = {
+  test() {
+    const encoder = new TextEncoder();
+    ok(encoder instanceof TextEncoder);
+
+    // `encoding` is an accessor on the prototype under jsg_property_on_prototype_template and
+    // an own property of each instance before it; either way it is in exactly one place.
+    strictEqual(
+      Object.hasOwn(encoder, 'encoding'),
+      !Object.hasOwn(TextEncoder.prototype, 'encoding')
+    );
+
+    throws(() => TextEncoder(), {
+      name: 'TypeError',
+      message:
+        "Failed to construct 'TextEncoder': Please use the 'new' operator, this object " +
+        'constructor cannot be called as a function.',
+    });
+    throws(() => TextEncoder.prototype.encode.call({}, 'a'), TypeError);
+    throws(
+      () => TextEncoder.prototype.encodeInto.call({}, 'a', new Uint8Array(1)),
+      TypeError
+    );
+
+    // `optional USVString input = ""`: only undefined is missing; anything else is
+    // stringified, null included.
+    const decoder = new TextDecoder();
+    strictEqual(decoder.decode(encoder.encode(undefined)), '');
+    strictEqual(decoder.decode(encoder.encode(null)), 'null');
+    strictEqual(decoder.decode(encoder.encode(123)), '123');
+    strictEqual(
+      decoder.decode(encoder.encode({ toString: () => 'obj' })),
+      'obj'
+    );
+    throws(() => encoder.encode(Symbol()), TypeError);
+
+    throws(() => encoder.encodeInto('a', new Uint16Array(1)), TypeError);
+    throws(() => encoder.encodeInto('a'), TypeError);
+    deepStrictEqual(encoder.encodeInto(null, new Uint8Array(8)), {
+      read: 4,
+      written: 4,
+    });
+  },
+};
+
 export const encodeWptTest = {
   test() {
     w3cTestEncode();
