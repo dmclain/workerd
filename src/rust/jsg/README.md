@@ -1451,6 +1451,12 @@ impl Greeting {
 - If no `#[jsg_constructor]` is present, `new MyResource()` throws an `Illegal constructor` error, matching C++ JSG behavior.
 - Calling the constructor without `new` throws a `TypeError`, matching C++ JSG behavior.
 
+## Exposing a Rust Resource from C++
+
+A C++ resource type can expose a Rust class as a nested type, e.g. on the global scope, with `JSG_NESTED_TEMPLATE(Name, getter)`. `getter` is a `v8::Local<v8::FunctionTemplate>(*)(v8::Isolate*)`, usually a bridge function that returns `jsg::resource::template_of::<R>(isolate)`. It takes a `&mut jsg::Isolate` rather than a `Lock`, since C++ builds templates before it enters a context; the bridge gets one with `jsg::Isolate::from_raw`. `template_of` creates the resource's template on first use and caches it in the `Realm`, so the isolate must have one.
+
+RTTI cannot describe a template, so the class does not appear in the generated TypeScript types, even though RTTI can describe the resource type itself.
+
 ## Properties
 
 Three macros expose properties on resource types: `#[jsg_property]` for prototype accessors,

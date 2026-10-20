@@ -639,6 +639,11 @@ struct MemberCounter {
     ++members;
   }
 
+  template <const char* name>
+  inline void registerNestedTemplate(v8::Local<v8::FunctionTemplate> (*getTemplate)(v8::Isolate*)) {
+    // Not a member: a nested template has no C++ type to describe.
+  }
+
   template <typename Property, auto property>
   inline void registerStructProperty(const char* name) {
     ++members;
@@ -735,6 +740,11 @@ struct MembersBuilder {
     auto nested = members[memberIndex++].initNested();
     nested.setName(name);
     BuildRtti<Configuration, Type>::build(nested.initStructure(), rtti);
+  }
+
+  template <const char* name>
+  inline void registerNestedTemplate(v8::Local<v8::FunctionTemplate> (*getTemplate)(v8::Isolate*)) {
+    // Not a member: a nested template has no C++ type to describe.
   }
 
   template <const char* name, typename Getter, Getter getter, typename Setter, Setter setter>

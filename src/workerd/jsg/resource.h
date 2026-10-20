@@ -1670,8 +1670,24 @@ struct ResourceTypeBuilder {
     static_assert(
         hasGetTemplate, "Type must be listed in JSG_DECLARE_ISOLATE_TYPE to be declared nested.");
 
-    auto tmpl = typeWrapper.getTemplate(isolate, static_cast<Type*>(nullptr));
+    installNestedTemplate(name, typeWrapper.getTemplate(isolate, static_cast<Type*>(nullptr)));
+  }
 
+  template <const char* name>
+  inline void registerNestedTemplate(v8::Local<v8::FunctionTemplate> (*getTemplate)(v8::Isolate*)) {
+    installNestedTemplate(name, getTemplate(isolate));
+  }
+
+  inline void registerTypeScriptRoot() { /* only needed for RTTI */ }
+
+  template <const char* tsOverride>
+  inline void registerTypeScriptOverride() { /* only needed for RTTI */ }
+
+  template <const char* tsDefine>
+  inline void registerTypeScriptDefine() { /* only needed for RTTI */ }
+
+ private:
+  void installNestedTemplate(const char* name, v8::Local<v8::FunctionTemplate> tmpl) {
     // Always install on the prototype so that types declared on parent classes are
     // inherited through FunctionTemplate::Inherit().
     prototype->Set(isolate, name, tmpl);
@@ -1694,15 +1710,6 @@ struct ResourceTypeBuilder {
     }
   }
 
-  inline void registerTypeScriptRoot() { /* only needed for RTTI */ }
-
-  template <const char* tsOverride>
-  inline void registerTypeScriptOverride() { /* only needed for RTTI */ }
-
-  template <const char* tsDefine>
-  inline void registerTypeScriptDefine() { /* only needed for RTTI */ }
-
- private:
   TypeWrapper& typeWrapper;
   v8::Isolate* isolate;
   v8::Local<v8::FunctionTemplate> constructor;

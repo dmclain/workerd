@@ -164,6 +164,11 @@ in RTTI/generated types. Keep the native private-property utilities inaccessible
 | `JSG_INHERIT_INTRINSIC(v8Intrinsic)` | Inherit from V8 intrinsic (e.g., `v8::kErrorPrototype`) |
 | `JSG_NESTED_TYPE(T)`                 | Expose nested type constructor (e.g., `Foo.Bar`)        |
 | `JSG_NESTED_TYPE_NAMED(T, jsName)`   | Nested type with different JS name                      |
+| `JSG_NESTED_TEMPLATE(Name, getter)`  | Nested type from a getter, e.g. Rust; not in RTTI       |
+
+`JSG_NESTED_TEMPLATE`'s `getter` is a `v8::Local<v8::FunctionTemplate>(*)(v8::Isolate*)`. It
+exposes a type whose template JSG does not build, such as a Rust resource (see
+`src/rust/jsg/README.md` §Exposing a Rust Resource from C++).
 
 ### Iterators
 

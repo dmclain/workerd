@@ -569,6 +569,17 @@ using HasGetTemplateOverload = decltype(kj::instance<T&>().getTemplate(
     registry.template registerNestedType<Type, NAME>();                                            \
   } while (false)
 
+// Like JSG_NESTED_TYPE, but for a class whose FunctionTemplate is built outside this type
+// wrapper, such as a Rust JSG resource. `getTemplate` is a
+// `v8::Local<v8::FunctionTemplate> (*)(v8::Isolate*)` that returns the same template on every
+// call for a given isolate. RTTI cannot describe a template, so the class does not appear in
+// generated TypeScript definitions.
+#define JSG_NESTED_TEMPLATE(Name, getTemplate)                                                     \
+  do {                                                                                             \
+    static const char NAME[] = #Name;                                                              \
+    registry.template registerNestedTemplate<NAME>(getTemplate);                                   \
+  } while (false)
+
 // Adds reflection to a resource type. See PropertyReflection<T> for usage.
 #define JSG_REFLECTION(...)                                                                        \
   static constexpr bool jsgHasReflection = true;                                                   \

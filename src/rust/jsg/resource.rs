@@ -631,6 +631,19 @@ pub fn wrap<'s, R: Resource + 'static>(
     panic!("attempt to wrap a resource in an isolate other than the one it was created in");
 }
 
+/// Returns the cached `FunctionTemplate` for a resource type.
+///
+/// Lazily creates and caches the template in the `Realm` on first call, so every call for a
+/// given isolate returns the same template. This is the template C++ installs on another
+/// type with `JSG_NESTED_TEMPLATE`, e.g. to expose a Rust class on the global scope.
+pub fn template_of<R: Resource + 'static>(
+    isolate: &mut crate::Isolate,
+) -> &v8::Global<v8::FunctionTemplate> {
+    // SAFETY: `Isolate` proves the isolate is locked; the Realm lives with the isolate.
+    let realm = unsafe { &mut *crate::ffi::realm_from_isolate(isolate.as_ffi()) };
+    realm.get_constructor::<R>()
+}
+
 /// Returns the constructor function for a resource type as a `Local<Function>`.
 ///
 /// Lazily creates and caches the `FunctionTemplate` in the `Realm` on first call.
