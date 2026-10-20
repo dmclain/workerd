@@ -26,6 +26,9 @@ const headers = new Headers({ 'x-a': '1', 'content-type': 'text/plain' });
 headers.append('x-a', '2');
 const url = new URL('https://example.com/p/a/t/h?query=string&x=1#hash');
 const encoder = new TextEncoder();
+// encodeInto()'s result is a struct, whose template (a cached one under fast_jsg_struct) the
+// zygote must not leave behind for the snapshot.
+const encodedAtTopLevel = encoder.encodeInto('h\u00e9llo', new Uint8Array(8));
 // An ICU decoder, and a windows-1252 one (a LegacyDecoder).
 const decoder = new TextDecoder('utf-8', { fatal: true });
 const legacyDecoder = new TextDecoder('windows-1252');
@@ -122,6 +125,9 @@ async function checks() {
     urlMutable:
       url.href === 'https://example.com/p/a/t/h?query=string&x=1#other',
     encoder: encoder.encode('héllo').length === 6,
+    encodeIntoAtTopLevel:
+      encodedAtTopLevel.read === 5 && encodedAtTopLevel.written === 6,
+    encodeInto: encoder.encodeInto('héllo', new Uint8Array(4)).written === 4,
     decoder:
       decoder.fatal && decoder.decode(encoder.encode('héllo')) === 'héllo',
     legacyDecoder:

@@ -124,7 +124,10 @@ namespace workerd::util {
   /* Counts the outgoing messages a WebSocket has queued but not yet written as the isolate's      \
      external memory, so that the isolate's memory limit applies to them. See                      \
      LegacyWebSocketAdapter::chargeOutgoing(). */                                                  \
-  V(WEBSOCKET_OUTGOING_QUEUE_MEMORY)
+  V(WEBSOCKET_OUTGOING_QUEUE_MEMORY)                                                               \
+  /* Expose the Rust implementation of the global TextEncoder (src/rust/encoding/text_encoder.rs)  \
+     instead of the C++ one (api/encoding.h). */                                                   \
+  V(RUST_TEXT_ENCODER)
 // clang-format on
 // --------------------------------------------------------------------------------------
 

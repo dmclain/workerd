@@ -1,0 +1,18 @@
+using Workerd = import "/workerd/workerd.capnp";
+
+# encoding-test.js against the Rust TextEncoder (src/rust/encoding/text_encoder.rs).
+const unitTests :Workerd.Config = (
+  services = [
+    ( name = "encoding-rust-text-encoder-test",
+      worker = (
+        modules = [
+          (name = "worker", esModule = embed "encoding-test.js")
+        ],
+        compatibilityFlags = ["nodejs_compat", "text_decoder_cjk_decoder"]
+      )
+    ),
+  ],
+  autogates = [
+    "workerd-autogate-rust-text-encoder",
+  ],
+);

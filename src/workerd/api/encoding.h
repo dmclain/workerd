@@ -179,6 +179,11 @@ class TextEncoder final: public jsg::Object {
 
 jsg::JsUint8Array encodeUtf8Chunk(jsg::Lock& js, jsg::JsString str);
 
+// Returns the FunctionTemplate of the Rust TextEncoder (src/rust/encoding/text_encoder.rs), which
+// ServiceWorkerGlobalScope exposes in place of TextEncoder when the RUST_TEXT_ENCODER
+// autogate is enabled. The isolate must have a Rust Realm.
+v8::Local<v8::FunctionTemplate> getRustTextEncoderTemplate(v8::Isolate* isolate);
+
 #define EW_ENCODING_ISOLATE_TYPES                                                                  \
   api::TextDecoder, api::TextEncoder, api::TextDecoder::ConstructorOptions,                        \
       api::TextDecoder::DecodeOptions, api::TextEncoder::EncodeIntoResult

@@ -1453,7 +1453,27 @@ impl Greeting {
 
 ## Exposing a Rust Resource from C++
 
-A C++ resource type can expose a Rust class as a nested type, e.g. on the global scope, with `JSG_NESTED_TEMPLATE(Name, getter)`. `getter` is a `v8::Local<v8::FunctionTemplate>(*)(v8::Isolate*)`, usually a bridge function that returns `jsg::resource::template_of::<R>(isolate)`. It takes a `&mut jsg::Isolate` rather than a `Lock`, since C++ builds templates before it enters a context; the bridge gets one with `jsg::Isolate::from_raw`. `template_of` creates the resource's template on first use and caches it in the `Realm`, so the isolate must have one.
+A C++ resource type can expose a Rust class as a nested type, e.g. on the global scope, with `JSG_NESTED_TEMPLATE(Name, getter)`. `getter` is a `v8::Local<v8::FunctionTemplate>(*)(v8::Isolate*)`, usually a bridge function that returns `jsg::resource::template_of::<R>(isolate)`. It takes a `&mut jsg::Isolate` rather than a `Lock`, since C++ builds templates before it enters a context; the bridge gets one with `jsg::Isolate::from_raw`. `template_of` creates the resource's template on first use and caches it in the `Realm`, so the isolate must have one. `TextEncoder` is wired this way, behind the `rust-text-encoder` autogate:
+
+```rust
+// src/rust/encoding/text_encoder.rs
+pub unsafe fn text_encoder_template(isolate: *mut ffi::Isolate) -> ffi::Local {
+    let js = unsafe { jsg::Isolate::from_raw(isolate) };
+    let template = jsg::resource::template_of::<TextEncoder>(js);
+    unsafe { jsg::v8::ffi::global_to_local(isolate, &template.as_ffi()) }
+}
+```
+
+```cpp
+// src/workerd/api/encoding.c++
+v8::Local<v8::FunctionTemplate> getRustTextEncoderTemplate(v8::Isolate* isolate) {
+  return ::workerd::rust::jsg::local_from_ffi<v8::FunctionTemplate>(
+      ::workerd::rust::encoding::text_encoder_template(isolate));
+}
+
+// src/workerd/api/global-scope.h, in ServiceWorkerGlobalScope's JSG_RESOURCE_TYPE
+JSG_NESTED_TEMPLATE(TextEncoder, getRustTextEncoderTemplate);
+```
 
 RTTI cannot describe a template, so the class does not appear in the generated TypeScript types, even though RTTI can describe the resource type itself.
 

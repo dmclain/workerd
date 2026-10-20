@@ -7,6 +7,7 @@ using Workerd = import "/workerd/workerd.capnp";
 
 const compatibilityFlags :List(Text) = [
   "nodejs_compat",
+  "enable_fast_jsg_struct",
   "global_navigator",
   "typescript_implemented_streams",
   "experimental",

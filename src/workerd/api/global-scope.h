@@ -23,6 +23,7 @@
 #include <workerd/io/observer.h>
 #include <workerd/io/worker-interface.h>
 #include <workerd/jsg/jsg.h>
+#include <workerd/util/autogate.h>
 
 namespace workerd::jsg {
 class DOMException;
@@ -48,6 +49,7 @@ class FixedLengthStream;
 class SubtleCrypto;
 class TextDecoder;
 class TextEncoder;
+v8::Local<v8::FunctionTemplate> getRustTextEncoderTemplate(v8::Isolate* isolate);
 class HTMLRewriter;
 class IdentityTransformStream;
 class Response;
@@ -1087,7 +1089,11 @@ class ServiceWorkerGlobalScope: public WorkerGlobalScope {
     JSG_NESTED_TYPE(AbortSignal);
 
     JSG_NESTED_TYPE(TextDecoder);
-    JSG_NESTED_TYPE(TextEncoder);
+    if (util::Autogate::isEnabled(util::AutogateKey::RUST_TEXT_ENCODER)) {
+      JSG_NESTED_TEMPLATE(TextEncoder, getRustTextEncoderTemplate);
+    } else {
+      JSG_NESTED_TYPE(TextEncoder);
+    }
 
     if (flags.getGlobalNavigator()) {
       JSG_LAZY_INSTANCE_PROPERTY(navigator, getNavigator);

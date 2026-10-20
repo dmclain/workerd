@@ -857,6 +857,12 @@ wd_test(
 )
 
 wd_test(
+    src = "encoding-rust-text-encoder-test.wd-test",
+    args = ["--experimental"],
+    data = ["encoding-test.js"],
+)
+
+wd_test(
     src = "autovuln-63-test.wd-test",
     args = ["--experimental"],
     data = ["autovuln-63-test.js"],

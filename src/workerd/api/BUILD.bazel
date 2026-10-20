@@ -515,6 +515,7 @@ wd_cc_library(
         "encoding-shared.h",
     ],
     implementation_deps = [
+        "//src/rust/jsg:ffi",
         "//src/workerd/util:strings",
         "@simdutf",
     ],
