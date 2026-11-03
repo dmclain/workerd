@@ -101,8 +101,46 @@ static v8::Local<v8::String> makeInternedStr(v8::Isolate* isolate, const Name& n
       .ToLocalChecked();
 }
 
+namespace {
+
+constexpr size_t roundUp(size_t size, size_t align) {
+  return (size + align - 1) & ~(align - 1);
+}
+
+// The offset of the WeakCount in a Wrappable's allocation. Aligned to every alignment that
+// allocate() accepts, it puts the Rust object at an offset from the WeakCount that depends only
+// on the object's alignment, which Rust uses to find the WeakCount from the object.
+constexpr size_t WEAK_COUNT_OFFSET = roundUp(sizeof(Wrappable), __STDCPP_DEFAULT_NEW_ALIGNMENT__);
+
+WeakCount& weakCountOf(void* allocation) {
+  return *reinterpret_cast<WeakCount*>(static_cast<kj::byte*>(allocation) + WEAK_COUNT_OFFSET);
+}
+
+}  // namespace
+
 // Wrappable implementation - calls into Rust via CXX bridge
+kj::Rc<Wrappable> Wrappable::allocate(size_t size, size_t align, uintptr_t& storage) {
+  // Larger alignments would need the aligned forms of operator new and delete.
+  KJ_REQUIRE(align <= __STDCPP_DEFAULT_NEW_ALIGNMENT__ && (align & (align - 1)) == 0,
+      "unsupported alignment of a Rust object", align);
+  size_t offset = WEAK_COUNT_OFFSET + roundUp(sizeof(WeakCount), align);
+  auto* wrappable = new (Extra{offset - sizeof(Wrappable) + size}) Wrappable();
+  auto* allocation = reinterpret_cast<kj::byte*>(wrappable);
+  new (allocation + WEAK_COUNT_OFFSET) WeakCount{.count = 1, .alive = true};
+  storage = reinterpret_cast<uintptr_t>(allocation + offset);
+  // A Refcounted object starts with one reference.
+  return kj::Rc<Wrappable>::reown(wrappable);
+}
+
+void Wrappable::releaseWeak(void* pointer) {
+  if (--weakCountOf(pointer).count == 0) {
+    ::operator delete(pointer);
+  }
+}
+
 Wrappable::~Wrappable() {
+  // Expires the object's jsg::Weaks before its Drop runs, as dropping the last std::rc::Rc does.
+  weakCountOf(this).alive = false;
   wrappable_invoke_drop(*this);
 }
 
@@ -1184,11 +1222,17 @@ kj::uint wrappable_strong_refcount(const Wrappable& wrappable) {
 }
 
 // Wrappable lifecycle
-kj::Rc<Wrappable> wrappable_new(TraitObjectPtr ptr) {
-  auto rc = kj::rc<Wrappable>();
-  rc->trait_object = kj::mv(ptr);
-  rc->addStrongRef();
-  return kj::mv(rc);
+kj::Rc<Wrappable> wrappable_new(size_t size, size_t align, uintptr_t& storage) {
+  return Wrappable::allocate(size, align, storage);
+}
+
+void wrappable_init(Wrappable& wrappable, TraitObjectPtr ptr) {
+  wrappable.trait_object = kj::mv(ptr);
+  wrappable.addStrongRef();
+}
+
+void wrappable_release_weak(Wrappable* wrappable) {
+  Wrappable::releaseWeak(wrappable);
 }
 
 kj::Rc<Wrappable> wrappable_to_rc(Wrappable& wrappable) {

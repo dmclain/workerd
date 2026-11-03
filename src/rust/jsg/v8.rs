@@ -21,13 +21,11 @@
 //! # Garbage Collection
 //!
 //! Rust resources integrate with V8's GC through the C++ `Wrappable` base class. Each Rust
-//! resource is wrapped in `Rc<R>` with a `Wrappable` on the KJ heap that bridges to cppgc
-//! via a `CppgcShim`. The Wrappable's `data[0..1]` stores a fat pointer to
-//! `dyn GarbageCollected` — the data part is the `Rc::into_raw` pointer (pointing to `R`
-//! inside the `Rc` allocation) and the vtable part carries `R`'s `GarbageCollected` impl.
-//! On destruction, `wrappable_invoke_drop` reconstructs the `Rc` via `Rc::from_raw` and
-//! drops it, which may drop the resource. The Rust `jsg::Rc<R>` smart pointer holds its own
-//! `std::Rc<R>` plus a `WrappableRc` (`KjRc<Wrappable>`) for reference-counted ownership. On
+//! resource lives in the allocation of a `Wrappable` on the KJ heap, which bridges to cppgc via
+//! a `CppgcShim`. The Wrappable's `trait_object` stores a fat pointer to the resource as
+//! `dyn GarbageCollected`, whose vtable carries the resource's `GarbageCollected` impl.
+//! On destruction, `wrappable_invoke_drop` drops the resource in place. The Rust `jsg::Rc<R>`
+//! smart pointer holds a `WrappableRc` (`KjRc<Wrappable>`) for reference-counted ownership. On
 //! drop, under the isolate lock, `wrappable_remove_strong_ref()` releases its strong reference,
 //! then the `WrappableRc` drop decrements the `kj::Rc` refcount; without the lock, its isolate's
 //! [`IsolateState`] queues both until the next lock. A function created by
@@ -46,7 +44,6 @@ use std::mem::ManuallyDrop;
 use std::num::NonZeroUsize;
 use std::pin::Pin;
 use std::ptr::NonNull;
-use std::rc::Rc;
 use std::sync::Arc;
 
 pub use self::ffi::ArrayIterateUntil;
@@ -191,12 +188,11 @@ pub mod ffi {
     }
 
     extern "Rust" {
-        /// Called from C++ Wrappable destructor to drop the Rust object.
-        /// Reconstructs the `Rc<dyn GarbageCollected>` from `data[0..1]` and drops it.
+        /// Called from C++ Wrappable destructor to drop the Rust object in place.
         unsafe fn wrappable_invoke_drop(wrappable: Pin<&mut Wrappable>);
 
         /// Called from C++ Wrappable::jsgVisitForGc to trace nested handles.
-        /// Reconstructs `&dyn GarbageCollected` from `data[0..1]` and calls `trace()`.
+        /// Reconstructs `&dyn GarbageCollected` from `trait_object` and calls `trace()`.
         unsafe fn wrappable_invoke_trace(wrappable: &Wrappable, visitor: *mut GcVisitor);
 
         /// Called from C++ `Wrappable::jsgGetMemoryName`.
@@ -631,7 +627,13 @@ pub mod ffi {
         pub unsafe fn wrappable_strong_refcount(wrappable: &Wrappable) -> u32;
 
         // Wrappable lifecycle — KjRc<Wrappable> for reference-counted ownership
-        pub unsafe fn wrappable_new(ptr: TraitObjectPtr) -> KjRc<Wrappable>;
+        pub unsafe fn wrappable_new(
+            size: usize,
+            align: usize,
+            storage: &mut usize,
+        ) -> KjRc<Wrappable>;
+        pub unsafe fn wrappable_init(wrappable: Pin<&mut Wrappable>, ptr: TraitObjectPtr);
+        pub unsafe fn wrappable_release_weak(wrappable: *mut Wrappable);
 
         pub unsafe fn wrappable_to_rc(wrappable: Pin<&mut Wrappable>) -> KjRc<Wrappable>;
         pub unsafe fn wrappable_add_strong_ref(wrappable: Pin<&mut Wrappable>);
@@ -884,7 +886,7 @@ pub mod ffi {
     /// Stored inside the C++ `Wrappable` struct. Contains everything needed to
     /// reconstruct the Rust trait object and verify its type.
     pub struct TraitObjectPtr {
-        /// `Rc::into_raw(*const R)` — data pointer to the resource.
+        /// Data pointer to the `R` in the Wrappable's storage.
         pub data_ptr: usize,
         /// Vtable pointer for `R as dyn GarbageCollected`.
         pub vtable_ptr: usize,
@@ -892,6 +894,17 @@ pub mod ffi {
         pub type_id_lo: usize,
         /// `TypeId::of::<R>()` high 64 bits.
         pub type_id_hi: usize,
+    }
+
+    /// The weak count of the Rust object in a Wrappable's allocation, before the object; see
+    /// `Wrappable` in `ffi.h`. Accessed only under the isolate lock, or by the one thread
+    /// that releases references once the isolate is disposed (see `IsolateState`).
+    pub struct WeakCount {
+        /// The object's `jsg::Weak`s, plus one until the Wrappable is deleted. The allocation is
+        /// freed when it reaches zero.
+        pub count: u32,
+        /// Cleared when the Wrappable starts dropping the object.
+        pub alive: bool,
     }
 
     pub struct ConstructorDescriptor {
@@ -2169,12 +2182,9 @@ impl Function {
     where
         T: Traced + 'static,
     {
-        // As in `jsg::Rc::new`, the Wrappable owns a leaked `Rc` of the data, released when the
-        // Wrappable is destroyed.
-        let raw: *const FunctionData<T> = Rc::into_raw(Rc::new(FunctionData(data)));
-        let fat: *mut dyn GarbageCollected = raw as *const dyn GarbageCollected as *mut _;
-        let mut wrappable: WrappableRc =
-            ffi::TraitObjectPtr::from_raw(fat, TypeId::of::<FunctionData<T>>()).into();
+        // As in `jsg::Rc::new`, the Wrappable owns the data, which is dropped when the Wrappable
+        // is destroyed.
+        let (mut wrappable, _) = WrappableRc::new(FunctionData(data));
         let functions = wrappable.new_functions(lock, callbacks);
         // A new Wrappable starts with one strong reference, which `jsg::Rc` would hold. Here only
         // the functions own it, so the reference is dropped and the garbage collector decides.
@@ -4762,8 +4772,8 @@ impl Clone for ffi::TraitObjectPtr {
 }
 
 impl ffi::TraitObjectPtr {
-    /// Creates a `TraitObjectPtr` from a raw `*mut dyn GarbageCollected` fat pointer
-    /// and the concrete type's `TypeId`.
+    /// Creates a `TraitObjectPtr` from a raw `*mut dyn GarbageCollected` fat pointer to a `T`
+    /// and the `TypeId` of `T`.
     pub(crate) fn from_raw(ptr: *mut dyn GarbageCollected, type_id: std::any::TypeId) -> Self {
         // SAFETY: a fat pointer is layout-equivalent to [*mut (); 2].
         let [data, vtable]: [*mut (); 2] = unsafe { std::mem::transmute(ptr) };
@@ -4776,7 +4786,7 @@ impl ffi::TraitObjectPtr {
             "fat pointer layout assumption violated: expected [data, vtable]"
         );
 
-        assert!(!data.is_null(), "Rc::into_raw returned null");
+        assert!(!data.is_null(), "trait object pointer is null");
 
         // SAFETY: TypeId is 128 bits (two usize on 64-bit), transmute to split halves for FFI storage.
         let [type_id_lo, type_id_hi]: [usize; 2] = unsafe { std::mem::transmute(type_id) };
@@ -4815,17 +4825,9 @@ impl ffi::TraitObjectPtr {
         if self.is_cleared() || self.type_id() != std::any::TypeId::of::<R>() {
             return None;
         }
-        // SAFETY: TypeId matched, so data_ptr is a valid Rc::into_raw pointer to R.
-        Some(unsafe { self.data_as::<R>() })
-    }
-
-    /// Returns the data pointer as a `NonNull<R>`.
-    ///
-    /// # Safety
-    /// The caller must have verified the `TypeId` matches `R`.
-    unsafe fn data_as<R>(&self) -> NonNull<R> {
-        // SAFETY: data_ptr is non-null (checked in from_raw) and TypeId was verified by caller.
-        unsafe { NonNull::new_unchecked(self.data_ptr as *mut R) }
+        // SAFETY: data_ptr is non-null (checked in from_raw), and the TypeId matched, so it
+        // points to an `R`.
+        Some(unsafe { NonNull::new_unchecked(self.data_ptr as *mut R) })
     }
 
     /// Reconstructs a shared reference to the `dyn GarbageCollected` object.
@@ -4845,24 +4847,23 @@ impl ffi::TraitObjectPtr {
         }
     }
 
-    /// Reconstructs the `Rc<dyn GarbageCollected>` and drops it.
+    /// Drops the object in place. Its storage is freed with the Wrappable.
     ///
     /// # Safety
-    /// The data pointer must have originated from `Rc::into_raw`.
-    /// Must only be called once per allocation.
-    unsafe fn drop_rc(&self) {
-        // SAFETY: transmuting [data, vtable] back into a fat pointer; Rc::from_raw
-        // reclaims the allocation originally created by Rc::into_raw in from_raw.
+    /// The object must be alive, and must not be used again.
+    unsafe fn drop_object(&self) {
+        // SAFETY: transmuting [data, vtable] back into a fat pointer to the live object, which
+        // the caller guarantees is not used again.
         unsafe {
-            let fat_ptr: *const dyn GarbageCollected =
-                std::mem::transmute([self.data_ptr as *const (), self.vtable_ptr as *const ()]);
-            drop(Rc::from_raw(fat_ptr));
+            let fat_ptr: *mut dyn GarbageCollected =
+                std::mem::transmute([self.data_ptr as *mut (), self.vtable_ptr as *mut ()]);
+            std::ptr::drop_in_place(fat_ptr);
         }
     }
 
     /// Zeroes the trait object in a Wrappable.
     ///
-    /// Called before `drop_rc` so that any re-entrant `wrappable_invoke_trace`
+    /// Called before `drop_object` so that any re-entrant `wrappable_invoke_trace`
     /// calls during destruction see null and no-op.
     ///
     /// # Safety
@@ -4873,17 +4874,18 @@ impl ffi::TraitObjectPtr {
     }
 }
 
-/// `TraitObjectPtr` → `WrappableRc`: allocates a new Wrappable on the KJ heap,
-/// transferring ownership of the `Rc`-backed `dyn GarbageCollected` fat pointer.
-///
-/// # Safety
-/// The data pointer must have come from `Rc::into_raw` and must not be used to
-/// reconstruct the Rc after this call (the Wrappable now owns it).
-impl From<ffi::TraitObjectPtr> for WrappableRc {
-    fn from(ptr: ffi::TraitObjectPtr) -> Self {
-        Self {
-            // SAFETY: ptr contains a valid Rc::into_raw data pointer (guaranteed by caller).
-            handle: unsafe { ffi::wrappable_new(ptr) },
+impl ffi::WeakCount {
+    /// Returns the weak count of the Rust object at `object`.
+    ///
+    /// # Safety
+    /// `object` must be the Rust object in a Wrappable's allocation that is not freed.
+    pub(crate) unsafe fn of<T>(object: NonNull<T>) -> NonNull<Self> {
+        // SAFETY: the object follows the weak count in the allocation, at the first offset
+        // aligned for the object (see `Wrappable::allocate`).
+        unsafe {
+            object
+                .byte_sub(size_of::<Self>().next_multiple_of(align_of::<T>()))
+                .cast()
         }
     }
 }
@@ -4891,21 +4893,21 @@ impl From<ffi::TraitObjectPtr> for WrappableRc {
 unsafe fn wrappable_invoke_drop(wrappable: Pin<&mut ffi::Wrappable>) {
     // SAFETY: wrappable is valid and exclusively accessed (Pin<&mut>).
     // Clear data slots before drop to prevent re-entrant trace during destruction,
-    // then drop the Rc<dyn GarbageCollected> to release the resource.
+    // then drop the object in place.
     unsafe {
         let Some(trait_ptr) = ffi::TraitObjectPtr::from_wrappable(wrappable.as_ref().get_ref())
         else {
             return;
         };
-        // Clone before clearing — clear_wrappable_data zeroes data_ptr.
+        // Clone before clearing — clear_wrappable zeroes data_ptr.
         let saved = trait_ptr.clone();
         ffi::TraitObjectPtr::clear_wrappable(wrappable);
-        // The resource is alive until `drop_rc`.
+        // The resource is alive until `drop_object`.
         let resource = saved.as_gc_ref();
         if resource.has_drop_impl() {
             GcVisitor::detach_for_drop(resource);
         }
-        saved.drop_rc();
+        saved.drop_object();
     }
 }
 
@@ -5377,6 +5379,36 @@ pub unsafe fn borrow_receiver<'a, R>(resource: NonNull<R>, _this: &'a Local<'_, 
 }
 
 impl WrappableRc {
+    /// Allocates a Wrappable that owns `value`, which lives in the Wrappable's allocation and is
+    /// dropped when the Wrappable is destroyed. Returns the Wrappable, with one strong reference,
+    /// and `value`'s address.
+    pub(crate) fn new<T: GarbageCollected + 'static>(value: T) -> (Self, NonNull<T>) {
+        const {
+            assert!(
+                align_of::<T>() <= 16,
+                "a resource or function data must not be aligned to more than 16 bytes"
+            );
+        }
+        let mut storage = 0;
+        // SAFETY: the size and alignment are those of the object moved into the storage below.
+        let handle = unsafe { ffi::wrappable_new(size_of::<T>(), align_of::<T>(), &mut storage) };
+        let object = std::ptr::with_exposed_provenance_mut::<T>(storage);
+        // SAFETY: `storage` is the address of uninitialized storage for a `T` in the Wrappable's
+        // allocation, which nothing else uses.
+        unsafe { object.write(value) };
+        let this = Self { handle };
+        let fat: *mut dyn GarbageCollected = object;
+        // SAFETY: the Wrappable is valid, and `fat` points to the object in its storage.
+        unsafe {
+            ffi::wrappable_init(
+                this.as_pin_mut(),
+                ffi::TraitObjectPtr::from_raw(fat, TypeId::of::<T>()),
+            );
+        }
+        // SAFETY: the storage of a live allocation is not null.
+        (this, unsafe { NonNull::new_unchecked(object) })
+    }
+
     /// Unwraps a JavaScript value to get an owned Wrappable handle.
     ///
     /// Returns `None` if the value is not a Rust-tagged Wrappable
@@ -5639,7 +5671,7 @@ impl WrappableRc {
         handle.map(|handle| Self { handle })
     }
 
-    /// Resolves the `Rc::into_raw` pointer stored in the Wrappable as a typed `NonNull<R>`.
+    /// Resolves the object stored in the Wrappable as a typed `NonNull<R>`.
     ///
     /// Returns `None` if the trait object has been cleared or holds a type other than `R`.
     pub(crate) fn resolve<R: 'static>(&self) -> Option<NonNull<R>> {
@@ -5651,7 +5683,7 @@ impl WrappableRc {
         trait_ptr.resolve::<R>()
     }
 
-    /// Resolves the `Rc::into_raw` pointer stored in the Wrappable as a typed `NonNull<R>`.
+    /// Resolves the resource stored in the Wrappable as a typed `NonNull<R>`.
     ///
     /// Returns `None` if the trait object has been cleared or the stored `TypeId`
     /// does not match `R`, preventing type confusion in all builds.
