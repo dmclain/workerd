@@ -1841,4 +1841,16 @@ struct CompatibilityFlags @0x8f8c1b68151b6cef {
   # caches as the snapshot recorded them, instead of invalidating them at startup. The snapshot is
   # collected with the Worker's files and packages already in place, so the caches still describe
   # them, and rebuilding them is a large part of startup.
+
+  connectHandlerImmediateTls @207 :Bool
+      $compatEnableFlag("connect_handler_immediate_tls")
+      $experimental;
+  # Lets a connect() handler serve a connection whose peer asked for TLS from the start, as another
+  # Worker does by calling `connect()` on a service binding with `secureTransport: 'on'`. The
+  # handler can't run the handshake itself, so it makes the connection secure further along, for
+  # example by opening its own upstream socket with `secureTransport: 'on'`. It then calls
+  # `socket.accept()`, and only then does the peer's `opened` resolve and its writes start flowing.
+  # The peer's request shows up as `socket.requestedSecureTransport`. A handler that returns,
+  # throws or closes its socket before calling accept() fails the connection, and the peer's
+  # `opened` rejects. Without the flag, such connections are refused before the handler runs.
 }

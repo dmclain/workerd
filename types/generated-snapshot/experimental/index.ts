@@ -3661,6 +3661,8 @@ export interface Socket {
   close(): Promise<void>;
   startTls(options?: TlsOptions): Socket;
   proxyTo(sock: Socket, options?: StreamPipeOptions): Promise<void>;
+  get requestedSecureTransport(): string | null;
+  accept(): void;
 }
 export interface SocketOptions {
   secureTransport?: string;
