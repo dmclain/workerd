@@ -195,6 +195,10 @@ pub mod ffi {
         /// Reconstructs the `Rc<dyn GarbageCollected>` from `data[0..1]` and drops it.
         unsafe fn wrappable_invoke_drop(wrappable: Pin<&mut Wrappable>);
 
+        /// Called from C++ `~Wrappable` when the `Drop` of a resource whose Wrappable is bound
+        /// to no isolate panicked, for the `IsolateState` releasing it to mark its isolate.
+        fn wrappable_note_unbound_drop_panic();
+
         /// Called from C++ Wrappable::jsgVisitForGc to trace nested handles.
         /// Reconstructs `&dyn GarbageCollected` from `data[0..1]` and calls `trace()`.
         unsafe fn wrappable_invoke_trace(wrappable: &Wrappable, visitor: *mut GcVisitor);
@@ -857,6 +861,8 @@ pub mod ffi {
         pub unsafe fn isolate_throw_exception(isolate: *mut Isolate, exception: Local);
         pub unsafe fn isolate_throw_internal_error(isolate: *mut Isolate, internal_message: &str);
         pub unsafe fn isolate_terminate_execution(isolate: *mut Isolate);
+        /// See `IsolateBase::setResourceDropPanicked()`.
+        pub unsafe fn isolate_set_resource_drop_panicked(isolate: *mut Isolate);
         pub unsafe fn isolate_terminate_execution_now(isolate: *mut Isolate) -> bool;
         pub unsafe fn isolate_is_execution_terminating(isolate: *mut Isolate) -> bool;
         pub unsafe fn isolate_has_pending_exception(isolate: *mut Isolate) -> bool;
@@ -4894,8 +4900,24 @@ unsafe fn wrappable_invoke_drop(wrappable: Pin<&mut ffi::Wrappable>) {
         if resource.has_drop_impl() {
             GcVisitor::detach_for_drop(resource);
         }
-        saved.drop_rc();
+        let name = resource.memory_name();
+        // Rethrown with the resource's name, for the cxx bridge to pass to C++ as the message of
+        // the `kj::Exception` that `~Wrappable` logs.
+        if let Err(payload) =
+            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| saved.drop_rc()))
+        {
+            let message = format!(
+                "{}: {}",
+                name.to_string_lossy(),
+                crate::panic_message(&*payload)
+            );
+            std::panic::resume_unwind(Box::new(message));
+        }
     }
+}
+
+fn wrappable_note_unbound_drop_panic() {
+    crate::isolate_state::note_unbound_drop_panic();
 }
 
 unsafe fn wrappable_invoke_trace(wrappable: &ffi::Wrappable, visitor: *mut ffi::GcVisitor) {
