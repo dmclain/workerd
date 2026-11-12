@@ -215,6 +215,11 @@ pub mod ffi {
             wrappable: &Wrappable,
             tracker: Pin<&mut MemoryTracker>,
         );
+
+        /// Called from C++ `Wrappable::snapshotClone`: the trait object of the resource's
+        /// `GarbageCollected::snapshot_clone`, for a new Wrappable to own, or a cleared one
+        /// (null data pointer) if the resource does not transfer.
+        unsafe fn wrappable_invoke_snapshot_clone(wrappable: &Wrappable) -> TraitObjectPtr;
     }
 
     unsafe extern "C++" {
@@ -4944,6 +4949,23 @@ unsafe fn wrappable_invoke_get_memory_info(
         let mut tracker = crate::MemoryTracker::from_ffi(tracker);
         trait_ptr.as_gc_ref().memory_info(&mut tracker);
     }
+}
+
+unsafe fn wrappable_invoke_snapshot_clone(wrappable: &ffi::Wrappable) -> ffi::TraitObjectPtr {
+    // SAFETY: wrappable is valid, and a trait object that is not cleared is alive.
+    let clone = unsafe {
+        ffi::TraitObjectPtr::from_wrappable(wrappable)
+            .and_then(|trait_ptr| trait_ptr.as_gc_ref().snapshot_clone())
+    };
+    clone.map_or(
+        ffi::TraitObjectPtr {
+            data_ptr: 0,
+            vtable_ptr: 0,
+            type_id_lo: 0,
+            type_id_hi: 0,
+        },
+        crate::SnapshotClone::into_ffi,
+    )
 }
 
 /// Visitor for garbage collection tracing.

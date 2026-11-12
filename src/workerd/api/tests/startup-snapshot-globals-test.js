@@ -244,6 +244,12 @@ async function test(ctrl, env) {
     'process-env'(r) {
       strictEqual(r.processEnv, 'yes');
     },
+    // Building a stdio stream evaluates the fs stream modules, whose module scope reaches
+    // UrlUtil, a Rust JSG resource (src/rust/api/url.rs), which carries over as a stateless
+    // resource.
+    'process-stdout'(r) {
+      strictEqual(r.topLevel.stdoutWritable, 'function');
+    },
   };
   // Cases whose top level fails the zygote: always started as plain Workers, which run the top
   // level themselves against the real objects. The zygote records every use of a fail-closed
@@ -308,12 +314,6 @@ async function test(ctrl, env) {
     // V8 adds Date.prototype.toTemporalInstant on restore.
     'date-frozen'(r) {
       strictEqual(r.dateFrozen, true);
-    },
-    // Building a stdio stream evaluates the fs stream modules, whose module scope reaches
-    // UrlUtil, a Rust JSG resource (src/rust/api/url.rs). Rust resource types have no snapshot
-    // transfer, so this falls back until they do.
-    'process-stdout'(r) {
-      strictEqual(r.topLevel.stdoutWritable, 'function');
     },
   };
 

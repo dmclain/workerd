@@ -166,6 +166,10 @@ and add declarations next to it, like C++ `JSG_TS_OVERRIDE` and `JSG_TS_DEFINE`,
 override syntax described in the `## JSG_TS_OVERRIDE Rules` section of `src/workerd/jsg/README.md`.
 For example, `#[jsg_resource(ts_override = "{ json<T>(): Promise<T> }")]` replaces the
 generated `json()` method.
+`snapshot_stateless`, on a struct without fields, lets a startup snapshot carry the resource as
+a new one, like C++ `jsgSnapshotStateless`: it implements `GarbageCollected::snapshot_clone`,
+which a resource with state implements by hand (see its documentation). A resource with neither
+fails the snapshot of any Worker whose context reaches it.
 
 **On an impl block** — emits `jsg::Resource::members(registry, flags)`, registering every
 `#[jsg_method]`, `#[jsg_constructor]`, `#[jsg_property]`, `#[jsg_inspect_property]`,
@@ -865,5 +869,5 @@ rules in `jsg::MemoryInfo`'s docs:
 - It must not call into JavaScript.
 
 `memory_info` or `custom_memory_info` (not both) can be combined with `name`, `custom_trace`,
-`ts_root`, `ts_override` and `ts_define`. Any other flag on the struct, or one given twice, is a compile error, so a misspelled
+`snapshot_stateless`, `ts_root`, `ts_override` and `ts_define`. Any other flag on the struct, or one given twice, is a compile error, so a misspelled
 `memory_info` is not silently off.

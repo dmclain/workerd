@@ -4,7 +4,8 @@
 
 // Live API objects across a startup snapshot. A case Worker's top level creates objects whose
 // native side has to travel through the snapshot (Headers, URL, TextEncoder, crypto, navigator,
-// the text/data/JSON bindings; node:fs in startup-snapshot-wrappables-fs-test.js) and at request
+// the text/data/JSON bindings; node:fs, which reaches the Rust UrlUtil, in
+// startup-snapshot-wrappables-fs-test.js) and at request
 // time reports whether they still hold their state and still work. Negative cases leave an object
 // the snapshot cannot carry reachable, or do not qualify for the pipeline, and must start as plain
 // Workers. The runner asserts the reports. Under the startup-snapshot autogate every service here
@@ -238,13 +239,11 @@ async function test(ctrl, env) {
     'gc',
     'finalization',
     'bindings',
+    'fs',
     ...(tsUrl ? ['searchparams'] : []),
   ];
-  // Cases that fail the zygote, or do not qualify for the pipeline: always plain Workers. The
-  // module scope of node:fs reaches UrlUtil, a Rust JSG resource (src/rust/api/url.rs); Rust
-  // resource types have no snapshot transfer, so the fs case falls back until they do.
+  // Cases that fail the zygote, or do not qualify for the pipeline: always plain Workers.
   const fallback = [
-    'fs',
     'unclonable',
     ...(tsUrl ? [] : ['searchparams']),
     'midstream-decoder',

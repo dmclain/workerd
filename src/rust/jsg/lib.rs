@@ -73,6 +73,7 @@ pub use resource::NestedType;
 pub use resource::NestedTypeMember;
 pub use resource::Rc;
 pub use resource::Resource;
+pub use resource::SnapshotClone;
 pub use resource::Undescribed;
 pub use resource::Weak;
 pub use resource::described_member;
@@ -1622,6 +1623,16 @@ pub trait GarbageCollected: Traced {
     /// type with its own `Drop` must override it to return `true`.
     fn has_drop_impl(&self) -> bool {
         false
+    }
+
+    /// The copy of the resource a startup snapshot carries to the Workers started from it, the
+    /// C++ `Wrappable::snapshotClone()`, or `None`, the default, if the resource cannot be
+    /// carried; a resource reachable from the context that returns `None` fails the snapshot.
+    /// Called without a [`Lock`]: in the zygote, and again on the copy in each restored Worker,
+    /// possibly on several threads at once, so it only reads `self`.
+    /// `#[jsg_resource(snapshot_stateless)]` implements it for a resource without fields.
+    fn snapshot_clone(&self) -> Option<SnapshotClone> {
+        None
     }
 }
 

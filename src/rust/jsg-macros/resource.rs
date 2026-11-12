@@ -50,6 +50,7 @@ pub fn generate_resource_struct(attr: TokenStream, input: &syn::DeriveInput) -> 
 
     // Read the flags before consuming `attr`.
     let custom_trace = has_custom_trace_flag(&attr);
+    let snapshot_stateless = crate::utils::has_flag(&attr, "snapshot_stateless");
     let typescript = typescript_options(attr.clone());
     let (input, memory_info) = match crate::memory_info::generate_for(attr.clone().into(), input) {
         Ok(generated) => generated,
@@ -71,6 +72,16 @@ pub fn generate_resource_struct(attr: TokenStream, input: &syn::DeriveInput) -> 
         Err(err) => return err,
     };
 
+    if snapshot_stateless && !fields.is_empty() {
+        return syn::Error::new_spanned(
+            &input.ident,
+            "`snapshot_stateless` is for a #[jsg_resource] struct without fields; a resource \
+             with state implements `GarbageCollected::snapshot_clone` by hand",
+        )
+        .to_compile_error()
+        .into();
+    }
+
     let trace_statements = generate_trace_statements(&fields);
     let name_str = name.to_string();
 
@@ -90,7 +101,17 @@ pub fn generate_resource_struct(attr: TokenStream, input: &syn::DeriveInput) -> 
         }
     };
 
-    let gc_impl = generate_gc_impl(&name, &name_str, &memory_info.gc_fn);
+    let snapshot_clone_fn = if snapshot_stateless {
+        // A resource without fields is the same in every isolate, so the copy is a new one.
+        quote! {
+            fn snapshot_clone(&self) -> ::std::option::Option<jsg::SnapshotClone> {
+                ::std::option::Option::Some(jsg::SnapshotClone::new(Self {}))
+            }
+        }
+    } else {
+        quote! {}
+    };
+    let gc_impl = generate_gc_impl(&name, &name_str, &memory_info.gc_fn, &snapshot_clone_fn);
     let visit_for_memory_info_impl = &memory_info.visit_impl;
 
     quote! {
@@ -592,12 +613,13 @@ fn collect_constant_registrations(impl_block: &ItemImpl) -> Vec<MemberRegistrati
         .collect()
 }
 
-/// The `jsg::GarbageCollected` impl of a resource named `name`, with `memory_info_fn`, its
-/// `memory_info` method or nothing.
+/// The `jsg::GarbageCollected` impl of a resource named `name`, with `memory_info_fn` and
+/// `snapshot_clone_fn`, its `memory_info` and `snapshot_clone` methods or nothing.
 fn generate_gc_impl(
     name: &syn::Ident,
     name_str: &str,
     memory_info_fn: &proc_macro2::TokenStream,
+    snapshot_clone_fn: &proc_macro2::TokenStream,
 ) -> proc_macro2::TokenStream {
     quote! {
         #[automatically_derived]
@@ -632,20 +654,22 @@ fn generate_gc_impl(
                 }
                 Probe::<Self>(::std::marker::PhantomData).has_drop_impl()
             }
+            #snapshot_clone_fn
         }
     }
 }
 
 /// Returns an error if the arguments of `#[jsg_resource]` on a struct are not `name = "..."`,
-/// `custom_trace`, `memory_info`, `custom_memory_info` and `ts_root`, so that a misspelled flag
-/// does not compile instead of being ignored. `nested_types(...)` and `custom_members` belong on
-/// the impl block.
+/// `custom_trace`, `memory_info`, `custom_memory_info`, `snapshot_stateless` and `ts_root`, so
+/// that a misspelled flag does not compile instead of being ignored. `nested_types(...)` and
+/// `custom_members` belong on the impl block.
 fn validate_struct_args(attr: proc_macro2::TokenStream) -> Option<syn::Error> {
     use syn::punctuated::Punctuated;
 
     const EXPECTED: &str = "expected `name = \"...\"`, `custom_trace`, `memory_info`, \
-                            `custom_memory_info`, `ts_root`, `ts_override = \"...\"` or \
-                            `ts_define = \"...\"` on a #[jsg_resource] struct";
+                            `custom_memory_info`, `snapshot_stateless`, `ts_root`, \
+                            `ts_override = \"...\"` or `ts_define = \"...\"` on a \
+                            #[jsg_resource] struct";
 
     let metas: Punctuated<syn::Meta, syn::Token![,]> =
         match syn::parse::Parser::parse2(Punctuated::parse_terminated, attr) {
@@ -677,6 +701,7 @@ fn validate_struct_args(attr: proc_macro2::TokenStream) -> Option<syn::Error> {
                     "custom_trace",
                     "memory_info",
                     "custom_memory_info",
+                    "snapshot_stateless",
                     "ts_root",
                 ]
                 .iter()
@@ -814,8 +839,9 @@ fn parse_impl_args(attr: proc_macro2::TokenStream) -> syn::Result<ImplArgs> {
 
     const EXPECTED: &str = "expected `custom_members`, `nested_types(...)` or \
                             `inherit_intrinsic = ...` on a #[jsg_resource] impl block (`name`, \
-                            `custom_trace`, `memory_info`, `custom_memory_info`, `ts_root`, \
-                            `ts_override` and `ts_define` belong on the struct)";
+                            `custom_trace`, `memory_info`, `custom_memory_info`, \
+                            `snapshot_stateless`, `ts_root`, `ts_override` and `ts_define` belong \
+                            on the struct)";
 
     let args = Punctuated::<syn::Meta, syn::Token![,]>::parse_terminated.parse2(attr)?;
     let mut custom_members = None;

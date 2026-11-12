@@ -3,10 +3,10 @@
 //     https://opensource.org/licenses/Apache-2.0
 
 // The fs service of startup-snapshot-wrappables-test: the shared case plus node:fs, whose module
-// object (FileSystemModule) carries its temporary-name counter through the snapshot. A directory
-// made at the top level and one made at request time must get the names a plain Worker gives
-// them, so a name minted after the restore cannot collide with one the top level saved. Today the
-// case starts as a plain Worker (see the runner), so the counter check only pins the names down.
+// object (FileSystemModule) carries its temporary-name counter through the snapshot, and whose
+// module scope reaches the Rust UrlUtil. A directory made at the top level and one made at
+// request time must get the names a plain Worker gives them, so a name minted after the restore
+// cannot collide with one the top level saved.
 
 import fs from 'node:fs';
 import { report } from './worker.js';

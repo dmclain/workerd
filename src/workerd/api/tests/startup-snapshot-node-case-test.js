@@ -6,6 +6,9 @@
 
 import { AsyncLocalStorage } from 'node:async_hooks';
 import diagnosticsChannel from 'node:diagnostics_channel';
+// Their module scopes reach the Rust UrlUtil and DnsUtil (src/rust/api), stateless resources.
+import dns from 'node:dns';
+import url from 'node:url';
 import { env } from 'cloudflare:workers';
 
 const MODE = env.MODE;
@@ -33,6 +36,10 @@ switch (MODE) {
     // hold, so the zygote rejects the snapshot.
     state = new AsyncLocalStorage({ defaultValue: 'default' });
     break;
+  case 'url-dns':
+    // The functions the top level took from node:url and node:dns.
+    state = { domainToASCII: url.domainToASCII, resolveCaa: dns.resolveCaa };
+    break;
   case 'diagnostics-channel': {
     // node:diagnostics_channel reaches the stateless DiagnosticsChannelModule; its channels and
     // their subscribers are JavaScript.
@@ -58,6 +65,15 @@ function checks() {
     }
     case 'als-default':
       return { defaultValue: state.getStore() === 'default' };
+    case 'url-dns':
+      return {
+        domainToASCII:
+          state.domainToASCII('español.com') === 'xn--espaol-zwa.com',
+        domainToUnicode:
+          url.domainToUnicode('xn--espaol-zwa.com') === 'español.com',
+        // DnsUtil only parses answers, so a lookup would need the network.
+        dns: state.resolveCaa === dns.resolveCaa,
+      };
     case 'diagnostics-channel': {
       const { channel, messages } = state;
       channel.publish('hello');

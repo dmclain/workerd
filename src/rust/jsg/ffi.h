@@ -78,6 +78,10 @@ class Wrappable: public ::workerd::jsg::Wrappable {
   size_t jsgGetMemorySelfSize() const override;
   void jsgGetMemoryInfo(::workerd::jsg::MemoryTracker& tracker) const override;
 
+  // A new Wrappable owning the Rust resource's `GarbageCollected::snapshot_clone()`, or kj::none
+  // if the resource does not transfer through a startup snapshot.
+  kj::Maybe<kj::Own<::workerd::jsg::Wrappable>> snapshotClone() const override;
+
   // Returns a new kj::Rc reference to this Wrappable.
   kj::Rc<Wrappable> toRc() {
     return addRefToThis();

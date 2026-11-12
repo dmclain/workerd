@@ -411,6 +411,31 @@ impl<R: Resource> fmt::Debug for Rc<R> {
     }
 }
 
+/// A resource made by [`GarbageCollected::snapshot_clone`] for a startup snapshot to carry to the
+/// Workers started from it. It belongs to no isolate: the snapshot turns it into a C++ Wrappable
+/// that a restored wrapper is attached to, without a [`Lock`].
+pub struct SnapshotClone {
+    resource: std::rc::Rc<dyn GarbageCollected>,
+    type_id: TypeId,
+}
+
+impl SnapshotClone {
+    /// The copy `resource`, which must hold nothing of any isolate: no handle, [`Rc`] or other
+    /// value tied to one.
+    pub fn new<R: GarbageCollected + 'static>(resource: R) -> Self {
+        Self {
+            resource: std::rc::Rc::new(resource),
+            type_id: TypeId::of::<R>(),
+        }
+    }
+
+    /// The trait object for a new C++ Wrappable, which takes over the resource.
+    pub(crate) fn into_ffi(self) -> v8::ffi::TraitObjectPtr {
+        let raw = std::rc::Rc::into_raw(self.resource).cast_mut();
+        v8::ffi::TraitObjectPtr::from_raw(raw, self.type_id)
+    }
+}
+
 /// A weak reference to a resource that doesn't prevent resource destruction.
 ///
 /// Uses `Weak<R>` for liveness detection: when all `Rc`s drop and

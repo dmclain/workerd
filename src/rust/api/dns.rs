@@ -242,7 +242,7 @@ fn parse_presentation_naptr_record(record: &str) -> Result<NaptrRecord, DnsParse
     })
 }
 
-#[jsg_resource]
+#[jsg_resource(snapshot_stateless)]
 pub struct DnsUtil;
 
 #[jsg_resource]

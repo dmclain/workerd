@@ -129,6 +129,16 @@ void Wrappable::jsgGetMemoryInfo(::workerd::jsg::MemoryTracker& tracker) const {
   wrappable_invoke_get_memory_info(*this, tracker);
 }
 
+kj::Maybe<kj::Own<::workerd::jsg::Wrappable>> Wrappable::snapshotClone() const {
+  auto clone = wrappable_invoke_snapshot_clone(*this);
+  if (clone.data_ptr == 0) return kj::none;
+  // Unlike wrappable_new(), no strong reference: the snapshot restore requires none (see
+  // jsg::Object::ownAsWrappable()), and no Rust `Rc` holds the copy.
+  auto copy = kj::rc<Wrappable>();
+  copy->trait_object = kj::mv(clone);
+  return kj::Own<::workerd::jsg::Wrappable>(copy.toOwn());
+}
+
 // Local<T>
 Global local_to_global(Isolate* isolate, Local value) {
   v8::Global<v8::Value> global(isolate, local_from_ffi<v8::Value>(kj::mv(value)));

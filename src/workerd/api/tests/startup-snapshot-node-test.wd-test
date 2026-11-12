@@ -28,6 +28,7 @@ const unitTests :Workerd.Config = (
           (name = "als", service = "als"),
           (name = "als-default", service = "als-default"),
           (name = "diagnostics-channel", service = "diagnostics-channel"),
+          (name = "url-dns", service = "url-dns"),
         ],
       )
     ),
@@ -58,6 +59,16 @@ const unitTests :Workerd.Config = (
         bindings = [
           (name = "MODE", json = "\"diagnostics-channel\""),
           (name = "SELF", service = "diagnostics-channel"),
+        ],
+      )
+    ),
+    ( name = "url-dns",
+      worker = (
+        modules = .caseModules,
+        compatibilityFlags = .compatibilityFlags,
+        bindings = [
+          (name = "MODE", json = "\"url-dns\""),
+          (name = "SELF", service = "url-dns"),
         ],
       )
     ),

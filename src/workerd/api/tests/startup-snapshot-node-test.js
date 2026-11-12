@@ -34,7 +34,7 @@ export default {
         strictEqual(value, true, `${name}: ${check}`);
       }
     };
-    for (const name of ['als', 'diagnostics-channel']) {
+    for (const name of ['als', 'diagnostics-channel', 'url-dns']) {
       await run(name, pipelineOn);
     }
     await run('als-default', false);
