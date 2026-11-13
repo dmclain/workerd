@@ -1268,6 +1268,12 @@ class SpanParent {
   // carries identity for toSpanContext() but does not record spans.
   static SpanParent fromSpanContext(tracing::SpanContext context);
 
+  // See SpanObserver::newRemoteParent() and newRootParent(). These return a null SpanParent if
+  // this parent is not observed or the observer doesn't support them.
+  SpanParent newRemoteParent(
+      tracing::TraceId traceId, tracing::SpanId spanId, kj::Maybe<tracing::TraceFlags> traceFlags);
+  SpanParent newRootParent();
+
  private:
   kj::Rc<SpanObserver> observer;
 };
@@ -1408,6 +1414,22 @@ class SpanObserver: public kj::Refcounted {
     return newChild();
   }
 
+  // Returns an observer that stands in for a span created elsewhere, for example by another Worker
+  // that sent its span context in a queue message. Spans created from it are children of that
+  // span, in its trace. The returned observer is never opened. Returns null if this observer
+  // doesn't report spans outside the invocation's trace.
+  [[nodiscard]] virtual kj::Rc<SpanObserver> newRemoteParent(
+      tracing::TraceId traceId, tracing::SpanId spanId, kj::Maybe<tracing::TraceFlags> traceFlags) {
+    return {};
+  }
+
+  // Returns an observer whose children each start a new trace, as its root span. The returned
+  // observer is never opened. Returns null if this observer doesn't report spans outside the
+  // invocation's trace.
+  [[nodiscard]] virtual kj::Rc<SpanObserver> newRootParent() {
+    return {};
+  }
+
   // Called when the span is opened. Delivers the initial operation name and start time.
   // Called exactly once, before any other lifecycle method.
   virtual void onOpen(kj::ConstString operationName, kj::Date startTime) = 0;
@@ -1483,6 +1505,17 @@ inline tracing::SpanId SpanParent::getSpanId() {
 
 inline SpanParent SpanParent::fromSpanContext(tracing::SpanContext context) {
   return SpanParent(kj::rc<NonRecordingSpanObserver>(kj::mv(context)));
+}
+
+inline SpanParent SpanParent::newRemoteParent(
+    tracing::TraceId traceId, tracing::SpanId spanId, kj::Maybe<tracing::TraceFlags> traceFlags) {
+  if (observer == nullptr) return nullptr;
+  return SpanParent(observer->newRemoteParent(kj::mv(traceId), spanId, traceFlags));
+}
+
+inline SpanParent SpanParent::newRootParent() {
+  if (observer == nullptr) return nullptr;
+  return SpanParent(observer->newRootParent());
 }
 
 inline SpanParent::SpanParent(SpanBuilder& builder): observer(builder.observer.addRef()) {}
