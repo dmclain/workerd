@@ -778,6 +778,13 @@ class IsolateBase {
     return kj::none;
   }
 
+  // The function that initializes the JSG_REFLECTION members of an instance restored for the
+  // resource type tagged `tag`, or none if the type has none.
+  virtual kj::Maybe<SnapshotInitReflectionFn> snapshotInitReflectionFnFor(
+      v8::CppHeapPointerTag tag) const {
+    return kj::none;
+  }
+
   // Visits every struct type's persistent handles (dictionary template + field-name handles).
   virtual void visitStructTypeHandles(kj::FunctionParam<void(v8::Global<v8::Name>&)> visitName,
       kj::FunctionParam<void(v8::Global<v8::DictionaryTemplate>&)> visitDictTmpl) {}
@@ -1305,6 +1312,11 @@ class Isolate: public IsolateBase {
   kj::Maybe<SnapshotRecreateFn> snapshotRecreateFnFor(v8::CppHeapPointerTag tag) const override {
     // Static on the wrapper type: every wrapper in `wrappers` is a TypeWrapper, with one numbering.
     return TypeWrapper::snapshotRecreateFnFor(tag);
+  }
+
+  kj::Maybe<SnapshotInitReflectionFn> snapshotInitReflectionFnFor(
+      v8::CppHeapPointerTag tag) const override {
+    return TypeWrapper::snapshotInitReflectionFnFor(tag);
   }
 
   void visitStructTypeHandles(kj::FunctionParam<void(v8::Global<v8::Name>&)> visitName,

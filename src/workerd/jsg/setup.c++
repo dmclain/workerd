@@ -1214,6 +1214,10 @@ void IsolateBase::prepareWrappableDeserializeMetadata(
               "snapshot clone failed to clone again", clone->jsgGetMemoryName());
         }
       }
+      // As wrapping a new instance would.
+      KJ_IF_SOME(initReflection, snapshotInitReflectionFnFor(stored.tag)) {
+        initReflection(js, *instance);
+      }
     }
     instances.add(kj::mv(instance));
   }
