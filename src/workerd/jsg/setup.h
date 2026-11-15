@@ -740,8 +740,11 @@ class IsolateBase {
   // does, which their contracts forbid: nothing on this path catches it and the Worker fails to
   // start.
   void prepareWrappableDeserializeMetadata(Lock& js, WrappableDeserializeMetadata& metadata);
-  // After Context::New(): WrappableDeserializeMetadata::releaseSlotsWithChecks().
-  void finishWrappableDeserializeMetadata(WrappableDeserializeMetadata& metadata);
+  // After Context::New(): hands the restored objects their references and their JavaScript values
+  // (WrappableDeserializeMetadata::relinkReferences() and restoreValues()), then
+  // releaseSlotsWithChecks().
+  void finishWrappableDeserializeMetadata(
+      Lock& js, v8::Local<v8::Context> context, WrappableDeserializeMetadata& metadata);
 
   void registerExternalReference(intptr_t addr) {
     if (!isPreparingSnapshot()) return;
@@ -1535,7 +1538,8 @@ class Isolate: public IsolateBase {
           "wrapper markers",
           metadata.badTagFieldsCount);
       if (jsgIsolate.isStartingFromSnapshot()) {
-        jsgIsolate.finishWrappableDeserializeMetadata(metadata);
+        jsgIsolate.finishWrappableDeserializeMetadata(
+            *this, context.getHandle(v8Isolate), metadata);
       }
       // V8 leaves some properties out of a context built in a serializer-enabled isolate and
       // adds them to a context restored from the snapshot, see
