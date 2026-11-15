@@ -108,6 +108,9 @@ switch (MODE) {
       signal,
       unused: new AbortController(),
       aborted: AbortSignal.abort('top-level reason'),
+      // Aborted with the default reason, a DOMException.
+      defaultAborted: AbortSignal.abort(),
+      domException: new DOMException('top-level message', 'DataError'),
       abortedController,
       abortedSignal,
       reasonObject,
@@ -341,6 +344,16 @@ async function checks() {
       unused.abort();
       result.abortUnusedAborts = unused.signal.aborted;
       result.abortStatic = aborted.aborted && aborted.reason === 'top-level reason';
+      const { reason } = kept.defaultAborted;
+      result.abortDefaultReason =
+        reason instanceof DOMException && reason.name === 'AbortError' && reason.code === 20;
+      const { domException } = kept;
+      result.domException =
+        domException instanceof DOMException &&
+        domException instanceof Error &&
+        domException.message === 'top-level message' &&
+        domException.name === 'DataError' &&
+        typeof domException.stack === 'string';
       result.abortObjectReason =
         abortedController.signal === abortedSignal && abortedSignal.reason === reasonObject;
       try {
