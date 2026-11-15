@@ -59,7 +59,6 @@ const RSA_N =
   'dR2nSp79FjufZiDyBK3E3S-f1Zva2JAcKNR68yDUERDWTmQQcDpOdanyAvGVRl5-9Q';
 
 // Per-case top-level state.
-let controller = null;
 let params = null;
 let kept = null;
 // The finalization case's registry and what its cleanup callback did. The handler reads this
@@ -69,7 +68,58 @@ const finalization = { registry: null, cleaned: [], headers: null };
 switch (MODE) {
   case 'unclonable':
     // Neither stateless nor clonable: the zygote rejects the snapshot.
-    controller = new AbortController();
+    kept = new FormData();
+    break;
+  case 'event-targets': {
+    // Plain EventTargets with listeners: a function, a once listener, a handler object, and an
+    // instance of a JavaScript subclass. Each listener records into `kept.calls`.
+    const target = new EventTarget();
+    const onceListener = () => kept.calls.push('once');
+    target.addEventListener('ping', (event) => kept.calls.push(`ping:${event.type}`));
+    target.addEventListener('ping', onceListener, { once: true });
+    class App extends EventTarget {}
+    const app = new App();
+    const handlerObject = {
+      handleEvent(event) {
+        kept.calls.push(`object:${this === handlerObject}:${event.type}`);
+      },
+    };
+    app.addEventListener('pong', handlerObject);
+    kept = { target, onceListener, app, App, handlerObject, empty: new EventTarget(), calls: [] };
+    break;
+  }
+  case 'event-target-signal':
+    // A listener registered with a `signal`: its removal is the signal's state.
+    kept = new EventTarget();
+    kept.addEventListener('ping', () => {}, { signal: new AbortController().signal });
+    break;
+  case 'abort': {
+    // A controller whose signal JavaScript holds, with a listener; one whose signal it never got;
+    // a signal aborted with a primitive reason, and a controller aborted with an object one.
+    const used = new AbortController();
+    const signal = used.signal;
+    signal.addEventListener('abort', () => kept.aborts.push(`listener:${signal.reason}`));
+    const reasonObject = { why: 'object' };
+    const abortedController = new AbortController();
+    const abortedSignal = abortedController.signal;
+    abortedController.abort(reasonObject);
+    kept = {
+      used,
+      signal,
+      unused: new AbortController(),
+      aborted: AbortSignal.abort('top-level reason'),
+      abortedController,
+      abortedSignal,
+      reasonObject,
+      aborts: [],
+    };
+    break;
+  }
+  case 'abort-unread-aborted':
+    // Aborted before JavaScript got its signal: the signal has no wrapper of its own to carry
+    // the abort.
+    kept = new AbortController();
+    kept.abort();
     break;
   case 'midstream-decoder':
     // A decoder with the first byte of a two-byte character pending.
@@ -243,7 +293,50 @@ async function checks() {
   };
   switch (MODE) {
     case 'unclonable':
-      result.controller = !controller.signal.aborted;
+      result.formData = kept instanceof FormData;
+      break;
+    case 'event-targets': {
+      const { target, onceListener, app, App, handlerObject, empty } = kept;
+      target.dispatchEvent(new Event('ping'));
+      target.dispatchEvent(new Event('ping'));
+      // The identity the top level registered still removes the listener (a no-op once fired).
+      target.removeEventListener('ping', onceListener);
+      app.dispatchEvent(new Event('pong'));
+      app.removeEventListener('pong', handlerObject);
+      app.dispatchEvent(new Event('pong'));
+      result.eventTargetCalls =
+        kept.calls.join() === 'ping:ping,once,ping:ping,object:true:pong';
+      result.eventTargetSubclass =
+        app instanceof App && app instanceof EventTarget && app.constructor.name === 'App';
+      result.eventTargetEmpty = empty.dispatchEvent(new Event('x'));
+      break;
+    }
+    case 'event-target-signal':
+      result.eventTarget = kept instanceof EventTarget;
+      break;
+    case 'abort': {
+      const { used, signal, unused, aborted, abortedController, abortedSignal, reasonObject } =
+        kept;
+      result.abortSignalIdentity = used.signal === signal && !signal.aborted;
+      used.abort('request reason');
+      result.abortListener =
+        signal.aborted && kept.aborts.join() === 'listener:request reason';
+      result.abortUnused = !unused.signal.aborted;
+      unused.abort();
+      result.abortUnusedAborts = unused.signal.aborted;
+      result.abortStatic = aborted.aborted && aborted.reason === 'top-level reason';
+      result.abortObjectReason =
+        abortedController.signal === abortedSignal && abortedSignal.reason === reasonObject;
+      try {
+        abortedSignal.throwIfAborted();
+        result.abortThrows = false;
+      } catch (e) {
+        result.abortThrows = e === reasonObject;
+      }
+      break;
+    }
+    case 'abort-unread-aborted':
+      result.abortUnread = kept.signal.aborted;
       break;
     case 'searchparams':
       result.params = params.get('query') === 'string';
@@ -424,6 +517,8 @@ async function test(ctrl, env) {
     'fs',
     'streamed-decoder',
     'crypto-keys',
+    'event-targets',
+    'abort',
     ...(tsUrl ? ['searchparams'] : []),
   ];
   // Cases that fail the zygote, or do not qualify for the pipeline: always plain Workers.
@@ -434,6 +529,8 @@ async function test(ctrl, env) {
     'no-ts-streams',
     'crypto-key-algorithm',
     'crypto-key-rsa',
+    'event-target-signal',
+    'abort-unread-aborted',
   ];
 
   const run = async (name, expectedSnapshotUsed) => {
