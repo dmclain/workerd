@@ -1348,10 +1348,12 @@ wd_test(
     ],
 )
 
-# Live API objects (Headers, URL, TextEncoder, crypto, navigator, node:fs, bindings) across a
-# startup snapshot, and the cases that must fall back. Only the @all-autogates variant runs the
-# pipeline.
+# Live API objects (Headers, URL, TextEncoder, crypto, navigator, node:fs, bindings, EventTarget,
+# AbortController, caches) across a startup snapshot, and the cases that must fall back. Only the
+# @all-autogates variant runs the pipeline, with a zygote per case: large, since that takes over
+# 15 s in a debug build.
 wd_test(
+    size = "large",
     src = "startup-snapshot-wrappables-test.wd-test",
     args = ["--experimental"],
     data = [
