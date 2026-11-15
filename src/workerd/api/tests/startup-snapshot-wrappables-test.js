@@ -115,6 +115,16 @@ switch (MODE) {
     };
     break;
   }
+  case 'urlpattern':
+  case 'urlpattern-standard':
+    // Patterns with a RegExp component, with only exact-match and empty components, and with
+    // wildcards.
+    kept = {
+      books: new URLPattern({ pathname: '/books/:id(\\d+)' }),
+      about: new URLPattern({ pathname: '/about' }),
+      wild: new URLPattern('https://*.example.com/*'),
+    };
+    break;
   case 'caches-scheduler':
     // The global caches and scheduler, and the default cache, as the top level kept them.
     kept = { caches, defaultCache: caches.default, scheduler };
@@ -341,6 +351,21 @@ async function checks() {
       }
       break;
     }
+    case 'urlpattern':
+    case 'urlpattern-standard': {
+      const { books, about, wild } = kept;
+      result.urlPatternMatch =
+        books.test('https://x/books/42') &&
+        books.exec('https://x/books/42').pathname.groups.id === '42' &&
+        !books.test('https://x/books/abc') &&
+        books.pathname === '/books/:id(\\d+)';
+      result.urlPatternExact = about.test('https://x/about') && !about.test('https://x/other');
+      result.urlPatternWildcard =
+        wild.test('https://a.example.com/q') &&
+        !wild.test('https://example.org/q') &&
+        wild.hostname === '*.example.com';
+      break;
+    }
     case 'caches-scheduler':
       result.cachesIdentity = kept.caches === caches && kept.scheduler === scheduler;
       result.defaultCacheIdentity = kept.defaultCache === caches.default;
@@ -534,6 +559,8 @@ async function test(ctrl, env) {
     'searchparams',
     'searchparams-url-standard',
     'caches-scheduler',
+    'urlpattern',
+    'urlpattern-standard',
   ];
   // Cases that fail the zygote, or do not qualify for the pipeline: always plain Workers.
   const fallback = [
