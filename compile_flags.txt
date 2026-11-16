@@ -38,6 +38,8 @@
 -isystembazel-bin/external/+git_repository+com_googlesource_chromium_icu/_virtual_includes/icu/third_party/icu/source/common
 -isystemexternal/zlib+
 -isystembazel-bin/src/rust/api/_virtual_includes/lib.rs@cxx
+-isystembazel-bin/src/rust/capnp-serde-json/tests/_virtual_includes/json_codec.rs@cxx
+-isystembazel-bin/src/rust/capnp-serde-json/tests/_virtual_includes/test_serde_json_ffi.rs@cxx
 -isystembazel-bin/src/rust/cxx-integration-test/_virtual_includes/lib.rs@cxx
 -isystembazel-bin/src/rust/cxx-integration/_virtual_includes/lib.rs@cxx
 -isystembazel-bin/src/rust/dns/_virtual_includes/lib.rs@cxx
@@ -60,6 +62,7 @@
 -isystembazel-bin/src/rust/worker/_virtual_includes/ffi.rs@cxx
 -isystembazel-bin/src/rust/worker/_virtual_includes/kill_switch.rs@cxx
 -isystembazel-bin/src/rust/worker/_virtual_includes/ok.rs@cxx
+-isystembazel-bin/src/workerd/api/_virtual_includes/r2_api_serde_json_ffi.rs@cxx
 -D_FORTIFY_SOURCE=1
 -D_LIBCPP_REMOVE_TRANSITIVE_INCLUDES
 -D_LIBCPP_NO_ABI_TAG
