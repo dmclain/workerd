@@ -11,17 +11,31 @@ expectType<Error>(error);
 expectType<string>(error.name);
 expectType<string>(error.message);
 expectType<number>(error.code);
+// stack is Error's.
+expectType<string | undefined>(error.stack);
+// @ts-expect-error stack may be undefined.
+error.stack.length;
 // @ts-expect-error name is read-only.
 error.name = 'DataError';
 // @ts-expect-error code is read-only.
 error.code = 0;
 
-expectType<number>(DOMException.ABORT_ERR);
-expectType<number>(DOMException.DATA_CLONE_ERR);
+// The constants have their codes' literal types, on the constructor and on
+// instances.
+expectType<20>(DOMException.ABORT_ERR);
+expectType<25>(DOMException.DATA_CLONE_ERR);
+expectType<20>(error.ABORT_ERR);
 // @ts-expect-error the constants are read-only.
 DOMException.ABORT_ERR = 0;
+// @ts-expect-error the constants are read-only.
+error.ABORT_ERR = 20;
 
 expectType<typeof DOMException>(self.DOMException);
+
+const caught: unknown = error;
+if (caught instanceof DOMException) {
+  expectType<string>(caught.name);
+}
 
 class SubError extends DOMException {
   constructor() {
