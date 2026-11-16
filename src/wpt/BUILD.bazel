@@ -296,8 +296,17 @@ wpt_test(
     wpt_directory = "@wpt//:webidl@module",
 )
 
+# The TypeScript DOMException, against the same expectations.
+wpt_test(
+    name = "webidl-ts",
+    autogates = ["workerd-autogate-ts-dom-exception"],
+    config = "webidl-test.ts",
+    wpt_directory = "@wpt//:webidl@module",
+)
+
 wpt_test(
     name = "wasm/jsapi",
+    size = "large",
     config = "wasm/jsapi-test.ts",
     extra_wpt_directories = [
         "@wpt//:wasm/jsapi@module",

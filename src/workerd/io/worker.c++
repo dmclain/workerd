@@ -974,18 +974,9 @@ struct Worker::Script::Impl {
           v8::TryCatch tryCatch(js.v8Isolate);
           ExceptionOrDuration limitErrorOrTime = 0 * kj::NANOSECONDS;
           try {
-            kj::Maybe<jsg::Value> result;
-            {
-              auto limitScope = worker->getIsolate().getLimitEnforcer().enterDynamicImportJs(
-                  lock, limitErrorOrTime);
-              result = handler();
-            }
-            // The limit may have been hit in a microtask, which throws nothing.
-            KJ_IF_SOME(limitError, limitErrorOrTime.tryGet<kj::Exception>()) {
-              kj::throwException(kj::mv(limitError));
-            } else {
-            }  // Squash the compile warning/error
-            return DynamicImportResult(KJ_ASSERT_NONNULL(kj::mv(result)));
+            auto limitScope = worker->getIsolate().getLimitEnforcer().enterDynamicImportJs(
+                lock, limitErrorOrTime);
+            return DynamicImportResult(handler());
           } catch (jsg::JsExceptionThrown&) {
             // Handled below...
           } catch (kj::Exception& ex) {
@@ -1105,7 +1096,12 @@ kj::Maybe<kj::String> makeCompatJson(kj::ArrayPtr<kj::StringPtr> enableFlags) {
 // be held on the Promise itself, and will be fulfilled/rejected when the
 // promise is resolved or rejected. This will signal all of the waiters
 // from other IoContexts.
-jsg::Promise<void> addCrossThreadPromiseWaiter(jsg::Lock& js, v8::Local<v8::Promise>& promise) {
+//
+// `tag` is the promise's context tag, identifying the IoContext that created it. The returned
+// promise also resolves once that IoContext is destroyed, if only it can settle the promise;
+// the caller must check whether the promise has settled.
+jsg::Promise<void> addCrossThreadPromiseWaiter(
+    jsg::Lock& js, v8::Local<v8::Promise>& promise, v8::Local<v8::Object> tag) {
   auto waiter = kj::newPromiseAndCrossThreadFulfiller<void>();
 
   struct Waiter: public kj::Refcounted {
@@ -1132,7 +1128,16 @@ jsg::Promise<void> addCrossThreadPromiseWaiter(jsg::Lock& js, v8::Local<v8::Prom
 
   js.toPromise(promise).then(js, kj::mv(onSuccess), kj::mv(onFailure));
 
-  return IoContext::current().awaitIo(js, kj::mv(waiter.promise));
+  kj::Promise<void> settled = kj::mv(waiter.promise);
+  if (FeatureFlags::get(js).getHandleCrossRequestPromiseResolution()) {
+    // Settlement from another IoContext is deferred to the creating IoContext (see the
+    // PromiseCrossContextResolveCallback in Worker::Isolate's constructor), and dropped if it has
+    // been destroyed. A promise still pending then can never settle, so stop waiting.
+    auto& owner = jsg::unwrapOpaqueRef<kj::Own<IoCrossContextExecutor>>(js.v8Isolate, tag);
+    settled = settled.exclusiveJoin(owner->whenTargetDestroyed());
+  }
+
+  return IoContext::current().awaitIo(js, kj::mv(settled));
 }
 
 struct HeapSnapshotDeleter: public kj::Disposer {
@@ -1237,6 +1242,8 @@ Worker::Isolate::Isolate(kj::Own<Api> apiParam,
           lock->v8Isolate, reinterpret_cast<intptr_t>(m.callback));
     }
     jsg::isolateRegisterExternalReference(lock->v8Isolate, jsg::getSyntheticModuleEvalRef());
+    jsg::isolateRegisterExternalReference(
+        lock->v8Isolate, jsg::modules::getSyntheticModuleEvaluationStepsRef());
 
     configureJsgIsolate(*lock, features);
 
@@ -1338,8 +1345,17 @@ Worker::Isolate::Isolate(kj::Own<Api> apiParam,
             "request.");
 
         return js.wrapSimplePromise(
-            addCrossThreadPromiseWaiter(js, promise)
-                .then(js, [promise = js.v8Ref(promise.As<v8::Value>())](auto& js) mutable {
+            addCrossThreadPromiseWaiter(js, promise, tag)
+                .then(js, [promise = js.v8Ref(promise.As<v8::Value>())](jsg::Lock& js) mutable {
+          // The waiter also resolves once the creating IoContext is gone, if that leaves the
+          // promise unable to settle.
+          JSG_REQUIRE(promise.getHandle(js).As<v8::Promise>()->State() !=
+                  v8::Promise::PromiseState::kPending,
+              Error,
+              "This promise was created by a request that has since ended, so it can never "
+              "settle. With the handle_cross_request_promise_resolution compatibility flag, a "
+              "promise can only settle in the request that created it, and settling it after "
+              "that request ends is dropped.");
           // Once the waiter has been resolved, return the now settled promise.
           // Since the promise has been settled, it is now safe to access from
           // other requests. Note that the resolved value of the promise still
@@ -2277,21 +2293,20 @@ kj::Maybe<jsg::JsObject> tryResolveMainModule(jsg::Lock& js,
     jsg::JsContext<api::ServiceWorkerGlobalScope>& jsContext,
     const Worker::Script& script,
     ExceptionOrDuration& limitErrorOrTime) {
-  // Declared before limitScope so that it runs after limitScope has recorded the limit error.
-  KJ_ON_SCOPE_SUCCESS({
-    if (limitErrorOrTime.is<kj::Exception>()) {
-      // If we hit the limit in PerformMicrotaskCheckpoint() we may not have actually
-      // thrown an exception.
-      throw jsg::JsExceptionThrown();
-    }
-  });
-
   kj::Own<void> limitScope;
   if (script.isPython()) {
     limitScope = script.getIsolate().getLimitEnforcer().enterStartupPython(js, limitErrorOrTime);
   } else {
     limitScope = script.getIsolate().getLimitEnforcer().enterStartupJs(js, limitErrorOrTime);
   }
+
+  KJ_DEFER({
+    if (limitErrorOrTime.is<kj::Exception>()) {
+      // If we hit the limit in PerformMicrotaskCheckpoint() we may not have actually
+      // thrown an exception.
+      throw jsg::JsExceptionThrown();
+    }
+  });
 
   // Before resolving the main module, if both nodejs_compat_v2 and the new
   // module registry are enabled, let's pre-resolve the process and buffer modules.
@@ -2499,23 +2514,16 @@ Worker::Worker(kj::Own<const Script> scriptParam,
 
             KJ_SWITCH_ONEOF(script->impl->unboundScriptOrMainModule) {
               KJ_CASE_ONEOF(unboundScript, jsg::NonModuleScript) {
-                {
-                  auto limitScope =
-                      script->isolate->getLimitEnforcer().enterStartupJs(lock, limitErrorOrTime);
-                  unboundScript.run(lock);
-                  // Flush microtasks enqueued during top-level script evaluation.
-                  // Without this flush, microtasks (e.g. promise continuations from async
-                  // initialization) remain on the per-isolate microtask queue and can leak
-                  // across V8 contexts when multiple Workers share an isolate (same script,
-                  // different zones). The leaked microtasks then execute under the wrong
-                  // IoContext, making things go boom.
-                  lock.runMicrotasks();
-                }
-                if (limitErrorOrTime.is<kj::Exception>()) {
-                  // If we hit the limit in runMicrotasks() we may not have actually thrown an
-                  // exception.
-                  throw jsg::JsExceptionThrown();
-                }
+                auto limitScope =
+                    script->isolate->getLimitEnforcer().enterStartupJs(lock, limitErrorOrTime);
+                unboundScript.run(lock);
+                // Flush microtasks enqueued during top-level script evaluation.
+                // Without this flush, microtasks (e.g. promise continuations from async
+                // initialization) remain on the per-isolate microtask queue and can leak across
+                // V8 contexts when multiple Workers share an isolate (same script, different
+                // zones). The leaked microtasks then execute under the wrong IoContext, making
+                // things go boom.
+                lock.runMicrotasks();
               }
               KJ_CASE_ONEOF(mainModule, kj::Path) {
                 if (lock.isPreparingSnapshot() && script->isModular()) {

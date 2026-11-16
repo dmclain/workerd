@@ -41,13 +41,23 @@ namespace workerd::rust::jsg {
     return to_ffi(v8::v8_type::New(arrayBuffer, 0, length));                                       \
   }
 
+// The memory that `view` covers. V8 reads a view's offset and length from the V8 heap and does
+// not always check them against the buffer, so a view that does not lie within its buffer is
+// empty here, as it is for jsg::JsBufferSource.
+static kj::ArrayPtr<uint8_t> viewBytes(v8::Local<v8::ArrayBufferView> view) {
+  auto buffer = view->Buffer();
+  auto byteOffset = view->ByteOffset();
+  auto byteLength = view->ByteLength();
+  auto bufferLength = buffer->ByteLength();
+  if (byteOffset > bufferLength || byteLength > bufferLength - byteOffset) return nullptr;
+  return kj::arrayPtr(static_cast<uint8_t*>(buffer->Data()) + byteOffset, byteLength);
+}
+
 #define DEFINE_TYPED_ARRAY_GET(name, v8_type, elem_type)                                           \
   elem_type local_##name##_get(const Local& array, size_t index) {                                 \
-    auto typed = local_as_ref_from_ffi<v8::v8_type>(array);                                        \
-    KJ_REQUIRE(index < typed->Length(), "index out of bounds");                                    \
-    auto data = reinterpret_cast<elem_type*>(                                                      \
-        static_cast<uint8_t*>(typed->Buffer()->Data()) + typed->ByteOffset());                     \
-    return data[index];                                                                            \
+    auto bytes = viewBytes(local_as_ref_from_ffi<v8::v8_type>(array));                             \
+    KJ_REQUIRE(index < bytes.size() / sizeof(elem_type), "index out of bounds");                   \
+    return reinterpret_cast<elem_type*>(bytes.begin())[index];                                     \
   }
 
 // BackingStore — the size_t handle is the address of a heap-allocated
@@ -334,7 +344,7 @@ MaybeLocal local_value_to_string(Isolate* isolate, Local value) {
 MaybeLocal local_to_detail_string(Isolate* isolate, const Local& val) {
   if (exceptionPending(isolate)) return maybe_local_to_ffi(v8::MaybeLocal<v8::Value>());
   return maybe_local_to_ffi(
-      local_as_ref_from_ffi<v8::Value>(val)->ToDetailString(isolate->GetCurrentContext()));
+      ::workerd::jsg::toDetailString(isolate, local_as_ref_from_ffi<v8::Value>(val)));
 }
 
 // Utf8Value
@@ -778,6 +788,12 @@ uint8_t* local_array_buffer_view_buffer_data(const Local& view) {
   return static_cast<uint8_t*>(local_as_ref_from_ffi<v8::ArrayBufferView>(view)->Buffer()->Data());
 }
 
+uintptr_t local_array_buffer_view_data(const Local& view, size_t& byte_length) {
+  auto bytes = viewBytes(local_as_ref_from_ffi<v8::ArrayBufferView>(view));
+  byte_length = bytes.size();
+  return reinterpret_cast<uintptr_t>(bytes.begin());
+}
+
 Local local_array_buffer_view_get_buffer(Isolate* isolate, const Local& view) {
   return to_ffi(local_as_ref_from_ffi<v8::ArrayBufferView>(view)->Buffer());
 }
@@ -905,6 +921,15 @@ void wrappable_attach_wrapper(kj::Rc<Wrappable> wrappable, FunctionCallbackInfo&
   auto* isolate = args.GetIsolate();
   auto object = args.This();
 
+  // Only the new object of a construct call, which wraps nothing yet, takes a Wrappable. An object
+  // that wraps one keeps it alive through its one CppHeap pointer, and the callbacks running on
+  // the object borrow from it, so it is never replaced.
+  KJ_REQUIRE(args.IsConstructCall(), "a resource is attached to `this` only in a construct call");
+  KJ_REQUIRE(object->InternalFieldCount() == ::workerd::jsg::Wrappable::INTERNAL_FIELD_COUNT,
+      "`this` was not made from a resource's instance template");
+  KJ_REQUIRE(::workerd::jsg::Wrappable::unwrapFromShimAnyType(isolate, object) == nullptr,
+      "`this` already wraps a resource");
+
   // attachWrapper sets up CppgcShim, TracedReference, internal fields, etc.
   wrappable->attachWrapper(isolate, object, true,
       static_cast<v8::CppHeapPointerTag>(::workerd::jsg::kRustResourceWrappableTag));
@@ -978,7 +1003,7 @@ bool unwrap_number(Isolate* isolate, Local value, double& result) {
 }
 
 namespace {
-// For an object already known to be a Rust resource wrapper, from the marker or a signature.
+// For an object already known to be a Rust resource wrapper, from the marker.
 // Anything else is an invariant violation and aborts.
 Wrappable& unwrapRustWrapper(Isolate* isolate, v8::Local<v8::Object> object) {
   return *static_cast<Wrappable*>(::workerd::jsg::Wrappable::unwrapFromShimInRangeOrAbort(
@@ -1018,9 +1043,19 @@ const TraitObjectPtr* unwrap_resource_trait_object(Isolate* isolate, Local value
 }
 
 const TraitObjectPtr* unwrap_method_receiver(Isolate* isolate, Local value) {
-  // V8 has checked the receiver against the method's Signature, so it is a wrapper made from a
-  // Rust resource template, and needs no marker check.
-  return &unwrapRustWrapper(isolate, local_from_ffi<v8::Object>(kj::mv(value))).trait_object;
+  // The receiver of a method registered with the type's Signature is a wrapper made from a Rust
+  // resource template, so this skips the marker check. A method callback registered without one
+  // gets any value, which is not found rather than aborting.
+  auto v8Value = local_from_ffi<v8::Value>(kj::mv(value));
+  if (!v8Value->IsObject()) return nullptr;
+  auto object = v8Value.As<v8::Object>();
+  // Object::Unwrap reads the CppHeap pointer slot of an API wrapper without checking that the
+  // object is one (V8 only DCHECKs it), and other objects keep other fields at that offset.
+  if (!object->IsApiWrapper()) return nullptr;
+  auto* wrappable = ::workerd::jsg::Wrappable::unwrapFromShim(
+      isolate, object, ::workerd::jsg::kRustResourceWrappableTagRange);
+  if (wrappable == nullptr) return nullptr;
+  return &static_cast<Wrappable*>(wrappable)->trait_object;
 }
 
 // Uses V8's Array::Iterate(), which is faster than indexed access. Iterate() opens HandleScopes of
@@ -1902,17 +1937,23 @@ Local js_error_create_from_bytes(
   KJ_UNREACHABLE;
 }
 
-bool dom_exception_try_unwrap(
-    Isolate* isolate, const Local& value, ::rust::String& name, ::rust::String& message) {
-  // No exceptionPending() check: unwrapping passes no context to V8, and runs no JavaScript.
+bool dom_exception_try_unwrap(Isolate* isolate,
+    const Local& value,
+    bool& isDomException,
+    ::rust::String& name,
+    ::rust::String& message) {
+  // Recognizing the bootstrap's DOMException reads private symbols, which passes the context.
+  if (exceptionPending(isolate)) return false;
   KJ_IF_SOME(exception,
       ::workerd::jsg::tryGetDOMExceptionNameAndMessage(
           isolate, local_as_ref_from_ffi<v8::Value>(value))) {
+    isDomException = true;
     name = ::rust::String::lossy(exception.name.begin(), exception.name.size());
     message = ::rust::String::lossy(exception.message.begin(), exception.message.size());
-    return true;
+  } else {
+    isDomException = false;
   }
-  return false;
+  return true;
 }
 
 namespace {

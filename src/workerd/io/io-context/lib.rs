@@ -109,9 +109,11 @@ impl<'s> IoContext<'s> {
     /// `IoContext`, with a new lock. It wraps C++ `IoContext::awaitIoAndRun()`, which shares its
     /// implementation with `IoContext::awaitIo()`, and behaves as it does:
     ///
-    /// - `future` is polled by this `IoContext`'s thread's event loop, without the isolate lock
-    ///   and with no `IoContext` current. Only its wake-ups may come from other threads. It must
-    ///   not block, which would stall every request on the thread.
+    /// - `future` is first polled in this call, under the isolate lock and with this `IoContext`
+    ///   current, as the KJ promise passed to C++ `awaitIo()` has already run up to its first
+    ///   wait. Later polls run on this `IoContext`'s thread's event loop, without the isolate
+    ///   lock and with no `IoContext` current. Only its wake-ups may come from other threads. It
+    ///   must not block, which would stall every request on the thread.
     /// - `callback` runs in the async context frame that was current when this was called, the
     ///   one the I/O was started in, rather than whichever is current when `future` completes.
     ///   In a Durable Object it waits for the input gate, or runs in the critical section that
@@ -129,7 +131,8 @@ impl<'s> IoContext<'s> {
     /// is logged as an uncaught exception and recorded in the request's `waitUntil()` status. A
     /// panic in `callback` also terminates JavaScript execution, as in a `#[jsg_method]`.
     ///
-    /// `future` and its output are `Send` because the future is polled without the isolate lock.
+    /// `future` and its output are `Send` because the future's later polls run without the
+    /// isolate lock.
     /// A `jsg::Rc` or `jsg::Weak` it holds can only be dropped, since every other use takes a
     /// [`jsg::Lock`], which the future doesn't have.
     ///
@@ -365,11 +368,14 @@ impl<'s> IoContext<'s> {
     /// [`IoOwned::take`] has taken it. How the value is reached differs from C++; see
     /// [`IoOwned`].
     ///
-    /// `value` should hold no JavaScript handles: nothing traces it.
+    /// `value` must hold no JavaScript handles ([`jsg::HoldsNoGcReferences`]): nothing traces it.
     ///
     /// # Errors
     /// Fails with an internal error if this `IoContext` is no longer the current one.
-    pub fn add_object<T: Send + 'static>(&self, value: T) -> jsg::Result<IoOwned<T>> {
+    pub fn add_object<T: jsg::HoldsNoGcReferences + 'static>(
+        &self,
+        value: T,
+    ) -> jsg::Result<IoOwned<T>> {
         let slot = Arc::new(Mutex::new(Some(value)));
         let object = bridge::io_context_add_object(
             self.id,
@@ -1063,6 +1069,9 @@ struct ThreadBoundSpan(SpanBuilder);
 // own reference to the slot may be dropped on another thread, but if it is the last one, that
 // `SlotRef` has emptied the slot, and dropping `None` touches no span.
 unsafe impl Send for ThreadBoundSpan {}
+
+// A span holds no JavaScript handles.
+jsg::jsg_traced!(ThreadBoundSpan);
 
 impl<T> Drop for SlotRef<T> {
     fn drop(&mut self) {

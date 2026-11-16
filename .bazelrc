@@ -230,6 +230,12 @@ build --@rules_rust//:extra_rustc_flag=-Cdebug-assertions=n
 build --@rules_rust//:extra_exec_rustc_flags=-Cdebug-assertions=n
 build --@rules_rust//:rustfmt.toml=//:rustfmt.toml
 
+# Enable Rust pipelining so dependent crates can start building without needing to fully compile a
+# crate resulting in a shorter critical path. This should be a bit faster and reliable once
+# https://github.com/bazelbuild/rules_rust/issues/3977 is implemented. Appears to be unstable on
+# Windows, perhaps due to missing sandbox support.
+build:unix --@rules_rust//rust/settings:pipelined_compilation=True
+
 # We default to not enabling debug assertions and unwinding for Rust. For debug builds this is not
 # the right setting, but unfortunately we can't set that directly.
 build:rust-debug --@rules_rust//:extra_rustc_flag=-Cdebug-assertions=y
@@ -685,6 +691,12 @@ coverage:bazelflare-coverage --test_tag_filters=-off-by-default,-no-coverage,-no
 # a second spawn per test, with the same inputs, and needs every coverage output fetched.
 build:bazelflare-coverage --noexperimental_split_coverage_postprocessing
 build:bazelflare-coverage --noexperimental_fetch_all_coverage_outputs
+# Generated headers and Rust sources that editors read from bazel-bin, which
+# --remote_download_minimal otherwise leaves remote. The aspect (build/generated_srcs.bzl) generates
+# those of the built C++ and Rust targets and their dependencies, and the regex downloads them.
+build:bazelflare-generated --aspects=//:build/generated_srcs.bzl%generated_srcs_aspect
+build:bazelflare-generated --output_groups=+generated_srcs
+common:bazelflare-generated --remote_download_regex=bazel-out/(?![^/]*-exec)[^/]+/bin/(?!node_modules/).*[.](h|hh|hpp|hxx|h[+][+]|inc|rs)
 
 # Local workstation overrides. /.local/ is gitgnored.
 try-import %workspace%/.local/bazelrc
