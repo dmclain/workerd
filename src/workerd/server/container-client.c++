@@ -1288,86 +1288,52 @@ class ContainerClient::DockerPort final: public rpc::Container::Port::Server,
 namespace {
 
 // UDP flows open with the same CONNECT to the sidecar's ingress listener as TCP ports, plus
-// `X-Dst-Protocol: udp`, then carry RFC 9297 DATAGRAM capsules. These limits match
-// proxy-everything's.
+// `X-Dst-Protocol: udp`. Each datagram then travels as a 2-byte big-endian length followed by the
+// datagram. These limits match proxy-everything's.
 constexpr size_t MAX_UDP_PAYLOAD_SIZE = 1500;
 
-// A context ID varint plus the payload; bounds buffering for every capsule type.
-constexpr uint64_t MAX_CAPSULE_VALUE_SIZE = MAX_UDP_PAYLOAD_SIZE + 8;
+// A frame length that ends the flow. One reason byte follows it.
+constexpr size_t FLOW_END_LENGTH = 0xffff;
 
-constexpr uint64_t CAPSULE_TYPE_DATAGRAM = 0;
+constexpr size_t FRAME_HEADER_SIZE = 2;
 constexpr size_t MAX_PENDING_UP_BYTES = 256 * 1024;
 constexpr size_t DOWN_READ_BUFFER_SIZE = 64 * 1024;
 
-// Parses a QUIC variable-length integer (RFC 9000 section 16). Returns none until `bytes` holds
-// all of it.
-kj::Maybe<uint64_t> tryParseVarint(kj::ArrayPtr<const kj::byte> bytes, size_t& size) {
-  if (bytes.size() == 0) {
-    return kj::none;
-  }
-
-  size = size_t(1) << (bytes[0] >> 6);
-  if (bytes.size() < size) {
-    return kj::none;
-  }
-
-  uint64_t value = bytes[0] & 0x3f;
-
-  for (auto next: bytes.slice(1, size)) {
-    value = value << 8 | next;
-  }
-
-  return value;
-}
-
-void appendVarint(kj::Vector<kj::byte>& out, uint64_t value) {
-  uint sizeLog = value < (1ull << 6) ? 0 : value < (1ull << 14) ? 1 : value < (1ull << 30) ? 2 : 3;
-  uint size = 1u << sizeLog;
-
-  for (uint i = size; i-- > 0;) {
-    auto next = static_cast<kj::byte>(value >> (8 * i));
-    out.add(i == size - 1 ? static_cast<kj::byte>(next | (sizeLog << 6)) : next);
-  }
-}
-
-struct Capsule {
+struct Frame {
   size_t size;
 
-  // The UDP payload of a DATAGRAM capsule with context ID 0; none for every other capsule.
-  kj::Maybe<kj::ArrayPtr<const kj::byte>> payload;
+  // The datagram; none for FLOW_END.
+  kj::Maybe<kj::ArrayPtr<const kj::byte>> datagram;
 };
 
-// Returns none until `bytes` holds a complete capsule.
-kj::Maybe<Capsule> tryParseCapsule(kj::ArrayPtr<const kj::byte> bytes) {
-  size_t typeSize = 0;
-  size_t lengthSize = 0;
-  auto type = KJ_UNWRAP_OR(tryParseVarint(bytes, typeSize), return kj::none);
-  auto length = KJ_UNWRAP_OR(
-      tryParseVarint(bytes.slice(typeSize, bytes.size()), lengthSize), return kj::none);
-
-  KJ_REQUIRE(length <= MAX_CAPSULE_VALUE_SIZE, "UDP capsule from the container sidecar is too long",
-      length);
-
-  auto headerSize = typeSize + lengthSize;
-  if (bytes.size() - headerSize < length) {
+// Returns none until `bytes` holds a complete frame.
+kj::Maybe<Frame> tryParseFrame(kj::ArrayPtr<const kj::byte> bytes) {
+  if (bytes.size() < FRAME_HEADER_SIZE) {
     return kj::none;
   }
 
-  Capsule capsule{.size = headerSize + length};
+  size_t length = size_t(bytes[0]) << 8 | bytes[1];
 
-  if (type == CAPSULE_TYPE_DATAGRAM) {
-    auto value = bytes.slice(headerSize, capsule.size);
-    size_t contextIdSize = 0;
-
-    KJ_IF_SOME(contextId, tryParseVarint(value, contextIdSize)) {
-      auto payload = value.slice(contextIdSize, value.size());
-      if (contextId == 0 && payload.size() <= MAX_UDP_PAYLOAD_SIZE) {
-        capsule.payload = payload;
-      }
+  // Every reason ends the flow the same way, so the reason byte is not read.
+  if (length == FLOW_END_LENGTH) {
+    if (bytes.size() < FRAME_HEADER_SIZE + 1) {
+      return kj::none;
     }
+
+    return Frame{.size = FRAME_HEADER_SIZE + 1};
   }
 
-  return capsule;
+  KJ_REQUIRE(
+      length <= MAX_UDP_PAYLOAD_SIZE, "UDP frame from the container sidecar is too long", length);
+
+  if (bytes.size() < FRAME_HEADER_SIZE + length) {
+    return kj::none;
+  }
+
+  return Frame{
+    .size = FRAME_HEADER_SIZE + length,
+    .datagram = bytes.slice(FRAME_HEADER_SIZE, FRAME_HEADER_SIZE + length),
+  };
 }
 
 // One UDP flow through the sidecar. The tunnel is never half-closed: it closes when the flow
@@ -1404,9 +1370,8 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
       return kj::READY_NOW;
     }
 
-    appendVarint(pending, CAPSULE_TYPE_DATAGRAM);
-    appendVarint(pending, payload.size() + 1);
-    pending.add(kj::byte(0));
+    pending.add(static_cast<kj::byte>(payload.size() >> 8));
+    pending.add(static_cast<kj::byte>(payload.size()));
     pending.addAll(payload);
     startWriting();
 
@@ -1528,7 +1493,7 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
     }
   }
 
-  // Writes all queued capsules in one write, then whatever was queued during that write.
+  // Writes all queued frames in one write, then whatever was queued during that write.
   kj::Promise<void> writeLoop(kj::AsyncIoStream& conn) {
     while (pending.size() > 0) {
       auto batch = kj::mv(pending);
@@ -1547,24 +1512,28 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
     writing = false;
   }
 
-  // Delivers capsules from the sidecar to `down`. A buffer holds many capsules, so large reads
-  // are parsed incrementally; every capsule fits after compaction.
+  // Delivers frames from the sidecar to `down`. A buffer holds many frames, so large reads are
+  // parsed incrementally; every frame fits after compaction. FLOW_END ends `down` like EOF does.
   kj::Promise<void> readLoop(kj::AsyncIoStream& conn) {
     auto buffer = kj::heapArray<kj::byte>(DOWN_READ_BUFFER_SIZE);
     size_t consumed = 0;
     size_t filled = 0;
 
     for (;;) {
-      auto parsed = tryParseCapsule(buffer.slice(consumed, filled));
+      auto parsed = tryParseFrame(buffer.slice(consumed, filled));
 
-      KJ_IF_SOME(capsule, parsed) {
-        consumed += capsule.size;
+      KJ_IF_SOME(frame, parsed) {
+        consumed += frame.size;
 
-        KJ_IF_SOME(payload, capsule.payload) {
+        KJ_IF_SOME(datagram, frame.datagram) {
           auto request =
-              down.sendRequest(capnp::MessageSize{4 + payload.size() / sizeof(capnp::word), 0});
-          request.setDatagram(payload);
+              down.sendRequest(capnp::MessageSize{4 + datagram.size() / sizeof(capnp::word), 0});
+          request.setDatagram(datagram);
           co_await request.send();
+        } else {
+          downEnded = true;
+          co_await down.endRequest().send();
+          co_return;
         }
       } else {
         memmove(buffer.begin(), buffer.begin() + consumed, filled - consumed);
@@ -1573,7 +1542,7 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
 
         auto n = co_await conn.tryRead(buffer.begin() + filled, 1, buffer.size() - filled);
         if (n == 0) {
-          KJ_REQUIRE(filled == 0, "container sidecar ended the UDP flow inside a capsule");
+          KJ_REQUIRE(filled == 0, "container sidecar ended the UDP flow inside a frame");
           downEnded = true;
           co_await down.endRequest().send();
           co_return;

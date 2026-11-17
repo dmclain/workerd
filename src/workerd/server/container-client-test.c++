@@ -395,52 +395,24 @@ struct UdpFlowTest {
     return conn;
   }
 
-  uint64_t readVarint(kj::AsyncIoStream& conn) {
-    kj::byte first;
-    KJ_REQUIRE(conn.tryRead(&first, 1, 1).wait(waitScope) == 1);
-    uint64_t value = first & 0x3f;
-
-    for (size_t i = 1; i < (size_t(1) << (first >> 6)); ++i) {
-      kj::byte next;
-      KJ_REQUIRE(conn.tryRead(&next, 1, 1).wait(waitScope) == 1);
-      value = value << 8 | next;
-    }
-
-    return value;
-  }
-
-  // Reads one DATAGRAM capsule with context ID 0 and returns its payload.
+  // Reads one frame and returns its datagram.
   kj::String readDatagram(kj::AsyncIoStream& conn) {
-    KJ_EXPECT(readVarint(conn) == 0);
-    auto value = kj::heapArray<char>(readVarint(conn));
-    auto size = conn.tryRead(value.begin(), value.size(), value.size()).wait(waitScope);
-    KJ_REQUIRE(size == value.size());
-    KJ_REQUIRE(value.size() > 0 && value[0] == 0);
-    return kj::heapString(value.slice(1, value.size()));
+    kj::byte length[2];
+    KJ_REQUIRE(conn.tryRead(length, 2, 2).wait(waitScope) == 2);
+    auto datagram = kj::heapArray<char>(size_t(length[0]) << 8 | length[1]);
+    auto size = conn.tryRead(datagram.begin(), datagram.size(), datagram.size()).wait(waitScope);
+    KJ_REQUIRE(size == datagram.size());
+    return kj::heapString(datagram);
   }
 };
 
-void appendTestVarint(kj::Vector<kj::byte>& out, uint64_t value) {
-  KJ_REQUIRE(value < (1u << 14));
-
-  if (value < (1u << 6)) {
-    out.add(static_cast<kj::byte>(value));
-  } else {
-    out.add(static_cast<kj::byte>(0x40 | (value >> 8)));
-    out.add(static_cast<kj::byte>(value));
-  }
+void appendLength(kj::Vector<kj::byte>& out, uint16_t length) {
+  out.add(static_cast<kj::byte>(length >> 8));
+  out.add(static_cast<kj::byte>(length));
 }
 
-void appendCapsule(kj::Vector<kj::byte>& out, uint64_t type, kj::ArrayPtr<const kj::byte> value) {
-  appendTestVarint(out, type);
-  appendTestVarint(out, value.size());
-  out.addAll(value);
-}
-
-void appendDatagram(kj::Vector<kj::byte>& out, kj::StringPtr payload, kj::byte contextId = 0) {
-  appendTestVarint(out, 0);
-  appendTestVarint(out, payload.size() + 1);
-  out.add(contextId);
+void appendDatagram(kj::Vector<kj::byte>& out, kj::StringPtr payload) {
+  appendLength(out, static_cast<uint16_t>(payload.size()));
   out.addAll(payload.asBytes());
 }
 
@@ -510,59 +482,81 @@ KJ_TEST("UDP flow fails connect with the sidecar's status when it refuses the fl
       connect.wait(test.waitScope));
 }
 
-KJ_TEST("UDP flow decodes capsules split across reads") {
+KJ_TEST("UDP flow decodes frames split across reads") {
   UdpFlowTest test;
   auto connect = test.connect();
   auto conn = test.accept();
 
-  kj::Vector<kj::byte> capsules;
-  appendDatagram(capsules, "first"_kj);
-  auto split = capsules.size() + 1;
-  appendDatagram(capsules, "second"_kj);
+  // Each write ends inside a frame and waits until the datagram before the cut arrives, so the
+  // flow reads the cut separately: first between the two length bytes, then inside a datagram.
+  kj::Vector<kj::byte> frames;
+  appendDatagram(frames, "a"_kj);
+  appendDatagram(frames, "bb"_kj);
+  auto betweenLengthBytes = frames.size() - 3;
+  appendDatagram(frames, "ccc"_kj);
+  appendDatagram(frames, "dddd"_kj);
+  auto insideDatagram = frames.size() - 2;
 
-  // The second capsule is cut after its type, so the first read ends inside it.
   kj::Vector<kj::byte> reply;
   reply.addAll(CONNECT_ACCEPTED.asBytes());
-  reply.addAll(capsules.asPtr().first(split));
+  reply.addAll(frames.asPtr().first(betweenLengthBytes));
   conn->write(reply.asPtr()).wait(test.waitScope);
   connect.wait(test.waitScope);
+  KJ_EXPECT(test.down.next(test.waitScope).payload == "a"_kj);
 
-  auto first = test.down.next(test.waitScope);
-  KJ_EXPECT(first.kind == "datagram"_kj);
-  KJ_EXPECT(first.payload == "first"_kj);
+  conn->write(frames.asPtr().slice(betweenLengthBytes, insideDatagram)).wait(test.waitScope);
+  KJ_EXPECT(test.down.next(test.waitScope).payload == "bb"_kj);
+  KJ_EXPECT(test.down.next(test.waitScope).payload == "ccc"_kj);
 
-  conn->write(capsules.asPtr().slice(split, capsules.size())).wait(test.waitScope);
-
-  auto second = test.down.next(test.waitScope);
-  KJ_EXPECT(second.kind == "datagram"_kj);
-  KJ_EXPECT(second.payload == "second"_kj);
+  conn->write(frames.asPtr().slice(insideDatagram, frames.size())).wait(test.waitScope);
+  auto last = test.down.next(test.waitScope);
+  KJ_EXPECT(last.kind == "datagram"_kj);
+  KJ_EXPECT(last.payload == "dddd"_kj);
 }
 
-KJ_TEST("UDP flow skips unknown capsules, drops other contexts and aborts on oversized capsules") {
+KJ_TEST("UDP flow ends down and closes the tunnel on FLOW_END") {
   UdpFlowTest test;
   auto connect = test.connect();
   auto conn = test.accept();
 
   kj::Vector<kj::byte> reply;
   reply.addAll(CONNECT_ACCEPTED.asBytes());
-  appendCapsule(reply, 0x2a, "ignored"_kj.asBytes());
-  appendDatagram(reply, "other context"_kj, 1);
-  appendDatagram(reply, "good"_kj);
-  appendTestVarint(reply, 0);
-  appendTestVarint(reply, 1509);
-
-  KJ_EXPECT_LOG(ERROR, "UDP capsule from the container sidecar is too long");
+  appendDatagram(reply, "last"_kj);
+  appendLength(reply, 0xffff);
+  reply.add(0);
   conn->write(reply.asPtr()).wait(test.waitScope);
-
   connect.wait(test.waitScope);
 
-  auto datagram = test.down.next(test.waitScope);
-  KJ_EXPECT(datagram.kind == "datagram"_kj);
-  KJ_EXPECT(datagram.payload == "good"_kj);
-  KJ_EXPECT(test.down.next(test.waitScope).kind == "abort"_kj);
+  KJ_EXPECT(test.down.next(test.waitScope).payload == "last"_kj);
+  KJ_EXPECT(test.down.next(test.waitScope).kind == "end"_kj);
 
   kj::byte unused;
   KJ_EXPECT(conn->tryRead(&unused, 1, 1).wait(test.waitScope) == 0);
+}
+
+KJ_TEST("UDP flow aborts on a frame length above 1500 that is not FLOW_END") {
+  for (uint16_t length: {1501, 0xfffe}) {
+    UdpFlowTest test;
+    auto connect = test.connect();
+    auto conn = test.accept();
+
+    kj::Vector<kj::byte> reply;
+    reply.addAll(CONNECT_ACCEPTED.asBytes());
+    appendDatagram(reply, "good"_kj);
+    appendLength(reply, length);
+
+    KJ_EXPECT_LOG(ERROR, "UDP frame from the container sidecar is too long");
+    conn->write(reply.asPtr()).wait(test.waitScope);
+    connect.wait(test.waitScope);
+
+    auto datagram = test.down.next(test.waitScope);
+    KJ_EXPECT(datagram.kind == "datagram"_kj, length);
+    KJ_EXPECT(datagram.payload == "good"_kj, length);
+    KJ_EXPECT(test.down.next(test.waitScope).kind == "abort"_kj, length);
+
+    kj::byte unused;
+    KJ_EXPECT(conn->tryRead(&unused, 1, 1).wait(test.waitScope) == 0, length);
+  }
 }
 
 KJ_TEST("UDP flow keeps receiving after end() and ends down when the sidecar closes") {
