@@ -1525,6 +1525,22 @@ namespace {
 // Fetch spec requires (suggests?) 20: https://fetch.spec.whatwg.org/#http-redirect-fetch
 constexpr auto MAX_REDIRECT_COUNT = 20;
 
+// Whether the HTTP client failed to parse the response head. kj's HttpClient fails with one of
+// these descriptions, and kj-hyper (src/rust/cxx/kj-hyper/client.rs) uses the last one. Fetch
+// treats this as a network error, which rejects with a TypeError.
+bool isInvalidResponseError(const kj::Exception& exception) {
+  static constexpr kj::StringPtr DESCRIPTIONS[] = {
+    "Response headers have no terminal newline."_kj,
+    "Invalid response status line"_kj,
+    "The headers sent by the server are not valid."_kj,
+  };
+  auto description = exception.getDescription();
+  for (const auto& text: DESCRIPTIONS) {
+    if (description.contains(text)) return true;
+  }
+  return false;
+}
+
 // Setup spans stay on the native stack so that they finish before fetch returns its JS promise.
 // Keep the fetch span as the propagated parent of the outgoing request.
 class FetchSetupTrace {
@@ -1993,6 +2009,8 @@ jsg::Promise<jsg::Ref<Response>> fetchImplNoOutputLockAttempt(jsg::Lock& js,
         return JSG_KJ_EXCEPTION(FAILED, Error, exception.getDescription());
       } else if (exception.getDescription().contains("NOSENTRY script not found")) {
         return JSG_KJ_EXCEPTION(FAILED, Error, "Worker not found.");
+      } else if (isInvalidResponseError(exception)) {
+        return JSG_KJ_EXCEPTION(FAILED, TypeError, "Received an invalid HTTP response.");
       }
       return kj::mv(exception);
     });
