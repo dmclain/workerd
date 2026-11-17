@@ -1300,13 +1300,20 @@ constexpr size_t MAX_PENDING_UP_BYTES = 256 * 1024;
 constexpr size_t DOWN_READ_BUFFER_SIZE = 64 * 1024;
 
 struct Frame {
+  // The bytes the frame takes from the buffer. An oversized frame takes only its header.
   size_t size;
 
-  // The datagram; none for FLOW_END.
+  // The datagram, if the frame carries one of at most MAX_UDP_PAYLOAD_SIZE bytes.
   kj::Maybe<kj::ArrayPtr<const kj::byte>> datagram;
+
+  // The bytes of an oversized datagram that follow `size` and are discarded as they arrive.
+  size_t skip = 0;
+
+  bool flowEnd = false;
 };
 
-// Returns none until `bytes` holds a complete frame.
+// Returns none until `bytes` holds a complete frame, or the header of an oversized one. Oversized
+// frames are skipped rather than rejected so that a peer can raise its limit without negotiation.
 kj::Maybe<Frame> tryParseFrame(kj::ArrayPtr<const kj::byte> bytes) {
   if (bytes.size() < FRAME_HEADER_SIZE) {
     return kj::none;
@@ -1320,11 +1327,12 @@ kj::Maybe<Frame> tryParseFrame(kj::ArrayPtr<const kj::byte> bytes) {
       return kj::none;
     }
 
-    return Frame{.size = FRAME_HEADER_SIZE + 1};
+    return Frame{.size = FRAME_HEADER_SIZE + 1, .flowEnd = true};
   }
 
-  KJ_REQUIRE(
-      length <= MAX_UDP_PAYLOAD_SIZE, "UDP frame from the container sidecar is too long", length);
+  if (length > MAX_UDP_PAYLOAD_SIZE) {
+    return Frame{.size = FRAME_HEADER_SIZE, .skip = length};
+  }
 
   if (bytes.size() < FRAME_HEADER_SIZE + length) {
     return kj::none;
@@ -1518,22 +1526,33 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
     auto buffer = kj::heapArray<kj::byte>(DOWN_READ_BUFFER_SIZE);
     size_t consumed = 0;
     size_t filled = 0;
+    size_t skipping = 0;
 
     for (;;) {
-      auto parsed = tryParseFrame(buffer.slice(consumed, filled));
+      auto skipped = kj::min(skipping, filled - consumed);
+      consumed += skipped;
+      skipping -= skipped;
+
+      kj::Maybe<Frame> parsed;
+      if (skipping == 0) {
+        parsed = tryParseFrame(buffer.slice(consumed, filled));
+      }
 
       KJ_IF_SOME(frame, parsed) {
         consumed += frame.size;
+        skipping = frame.skip;
+
+        if (frame.flowEnd) {
+          downEnded = true;
+          co_await down.endRequest().send();
+          co_return;
+        }
 
         KJ_IF_SOME(datagram, frame.datagram) {
           auto request =
               down.sendRequest(capnp::MessageSize{4 + datagram.size() / sizeof(capnp::word), 0});
           request.setDatagram(datagram);
           co_await request.send();
-        } else {
-          downEnded = true;
-          co_await down.endRequest().send();
-          co_return;
         }
       } else {
         memmove(buffer.begin(), buffer.begin() + consumed, filled - consumed);
@@ -1542,7 +1561,8 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
 
         auto n = co_await conn.tryRead(buffer.begin() + filled, 1, buffer.size() - filled);
         if (n == 0) {
-          KJ_REQUIRE(filled == 0, "container sidecar ended the UDP flow inside a frame");
+          KJ_REQUIRE(
+              filled == 0 && skipping == 0, "container sidecar ended the UDP flow inside a frame");
           downEnded = true;
           co_await down.endRequest().send();
           co_return;

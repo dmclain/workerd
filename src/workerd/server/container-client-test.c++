@@ -534,28 +534,37 @@ KJ_TEST("UDP flow ends down and closes the tunnel on FLOW_END") {
   KJ_EXPECT(conn->tryRead(&unused, 1, 1).wait(test.waitScope) == 0);
 }
 
-KJ_TEST("UDP flow aborts on a frame length above 1500 that is not FLOW_END") {
+KJ_TEST("UDP flow skips frames above 1500 bytes and stays open") {
+  // A 0xFFFE-byte frame is larger than the flow's read buffer, so skipping it spans reads.
   for (uint16_t length: {1501, 0xfffe}) {
     UdpFlowTest test;
     auto connect = test.connect();
+    auto up = connect.getUp();
     auto conn = test.accept();
 
     kj::Vector<kj::byte> reply;
     reply.addAll(CONNECT_ACCEPTED.asBytes());
-    appendDatagram(reply, "good"_kj);
     appendLength(reply, length);
+    auto oversized = kj::heapArray<kj::byte>(length);
+    oversized.asPtr().fill('x');
+    reply.addAll(oversized);
+    appendDatagram(reply, "next"_kj);
 
-    KJ_EXPECT_LOG(ERROR, "UDP frame from the container sidecar is too long");
-    conn->write(reply.asPtr()).wait(test.waitScope);
+    // Written in pieces, so the oversized frame also arrives over several writes.
+    for (size_t offset = 0; offset < reply.size(); offset += 10000) {
+      auto end = kj::min(offset + 10000, reply.size());
+      conn->write(reply.asPtr().slice(offset, end)).wait(test.waitScope);
+    }
+
     connect.wait(test.waitScope);
 
     auto datagram = test.down.next(test.waitScope);
     KJ_EXPECT(datagram.kind == "datagram"_kj, length);
-    KJ_EXPECT(datagram.payload == "good"_kj, length);
-    KJ_EXPECT(test.down.next(test.waitScope).kind == "abort"_kj, length);
+    KJ_EXPECT(datagram.payload == "next"_kj, length);
 
-    kj::byte unused;
-    KJ_EXPECT(conn->tryRead(&unused, 1, 1).wait(test.waitScope) == 0, length);
+    sendUp(up, "still open"_kj).wait(test.waitScope);
+    KJ_EXPECT(test.readDatagram(*conn) == "still open"_kj, length);
+    KJ_EXPECT(test.down.events.size() == 1, length);
   }
 }
 
