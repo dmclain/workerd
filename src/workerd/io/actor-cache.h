@@ -287,10 +287,14 @@ class ActorCacheInterface: public ActorCacheOps, public kj::PtrTarget {
 
   virtual void cancelDeferredAlarmDeletion() = 0;
 
-  // Called by AlarmManager when it has given up retrying an alarm after too many counted failures.
+  // Called by the alarm scheduler when it has given up on the alarm at scheduledTime.
   // Implementations should clear the alarm from their local state so getAlarm() reflects the
-  // deletion. Returns the stored alarm time if it differs from scheduledTime (the user set a new
-  // alarm), or kj::none if the alarm was cleared or no alarm was stored.
+  // deletion. If a different alarm is known to be stored (the user set a new alarm), it stays set,
+  // and its time is returned. Otherwise this returns kj::none, which doesn't rule out a different
+  // alarm the implementation doesn't know about, so the scheduler must delete only the alarm at
+  // scheduledTime. When this returns a time, the scheduler may keep the abandoned alarm, in case
+  // the request that gave it the stored alarm failed, so armAlarmHandler() must handle the
+  // abandoned alarm running again.
   virtual kj::Promise<kj::Maybe<kj::Date>> abandonAlarm(kj::Date scheduledTime) {
     return kj::Maybe<kj::Date>(kj::none);
   }

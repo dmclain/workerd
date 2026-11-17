@@ -437,12 +437,19 @@ kj::Promise<void> ActorSqlite::requestScheduledAlarm(
     // needing to wait for them to complete.
     alarmScheduledNoLaterThan = requestedTime;
   }
+  auto requestNumber = ++alarmRequestCount;
 
   return hooks.scheduleRun(requestedTime, kj::mv(priorTask))
-      .then([weakThis = addWeakToThis(), movingAlarmLater, requestedTime]() {
+      .then([weakThis = addWeakToThis(), movingAlarmLater, requestedTime, requestNumber]() {
     if (!movingAlarmLater) {
-      KJ_REQUIRE_NONNULL(weakThis.tryGet(), "ActorSqlite destroyed before alarm was scheduled")
-          .alarmScheduledNoLaterThan = requestedTime;
+      auto& self =
+          KJ_REQUIRE_NONNULL(weakThis.tryGet(), "ActorSqlite destroyed before alarm was scheduled");
+      // A request issued after this one may schedule a later alarm, which lowering the value
+      // would hide.
+      if (requestNumber == self.alarmRequestCount ||
+          willFireEarlier(self.alarmScheduledNoLaterThan, requestedTime)) {
+        self.alarmScheduledNoLaterThan = requestedTime;
+      }
     }
   });
 }
@@ -1122,13 +1129,15 @@ void ActorSqlite::cancelDeferredAlarmDeletion() {
 }
 
 kj::Promise<kj::Maybe<kj::Date>> ActorSqlite::abandonAlarm(kj::Date scheduledTime) {
-  // Called when AlarmManager has given up retrying an alarm after too many counted failures.
-  // Clear the alarm from SQLite so getAlarm() returns null instead of a stale time.
+  // Called when the alarm scheduler has given up on an alarm, e.g. after too many counted failures
+  // or an abort that doesn't retry. Clear the alarm from SQLite so getAlarm() returns null instead
+  // of a stale time.
   // Only clear if SQLite currently has the exact alarm being abandoned and we're not mid-handler.
   // The time check guards against the race where the user set a new alarm (which always has a
   // time >= now() > scheduledTime due to past-time clamping in setAlarm) before this call arrived.
   if (inAlarmHandler) {
-    // Shouldn't happen -- AlarmManager shouldn't call abandonAlarm while a handler is running.
+    // The abandoned alarm's run has finished, so the running handler is another alarm's, e.g. one
+    // the user set before the abandonment arrived. That handler settles the alarm state.
     LOG_WARNING_ONCE("abandonAlarm called while alarm handler is still running");
     return kj::Maybe<kj::Date>(kj::none);
   }
@@ -1136,8 +1145,20 @@ kj::Promise<kj::Maybe<kj::Date>> ActorSqlite::abandonAlarm(kj::Date scheduledTim
     if (storedTime == scheduledTime) {
       setAlarm(kj::none, {}, nullptr);
       return kj::Maybe<kj::Date>(kj::none);
+    } else if (storedTime == lastConfirmedAlarmDbState) {
+      // The user set a different alarm, and it is committed. The request that gave it to the
+      // scheduler may have failed or been canceled, e.g. because the instance that set it was
+      // aborted, leaving the scheduler with only the abandoned alarm. Request the stored alarm
+      // again. If that fails too (rescheduleConfirmedAlarm() logs it), we still report the stored
+      // alarm, so that the scheduler can keep the abandoned one. Its next run then runs the stored
+      // alarm if that is due, or else requests it again (see armAlarmHandler()).
+      return kj::evalNow([this]() { return rescheduleConfirmedAlarm(); })
+          .then([storedTime]() { return kj::Maybe<kj::Date>(storedTime); },
+              [storedTime](kj::Exception&&) { return kj::Maybe<kj::Date>(storedTime); });
     } else {
-      // The user set a different alarm. Return it so AlarmManager can re-register.
+      // The user set a different alarm that is still being committed. The commit requests it once
+      // it is persisted. We report the stored alarm, so that the scheduler can keep the abandoned
+      // one in case that request fails.
       return kj::Maybe<kj::Date>(storedTime);
     }
   }

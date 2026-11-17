@@ -86,12 +86,7 @@ struct ActorSqliteTest final: public kj::PtrTarget {
       KJ_IF_SOME(h, parent.scheduleRunHandler) {
         return h(newAlarmTime);
       }
-      auto desc = newAlarmTime.map([](auto& t) {
-        return kj::str("scheduleRun(", t, ")");
-      }).orDefault(kj::str("scheduleRun(none)"));
-      auto [promise, fulfiller] = kj::newPromiseAndFulfiller<void>();
-      parent.calls.add(Call{kj::mv(desc), kj::mv(fulfiller)});
-      return kj::mv(promise);
+      return parent.recordScheduleRun(newAlarmTime);
     }
 
     ActorSqliteTest& parent;
@@ -100,6 +95,28 @@ struct ActorSqliteTest final: public kj::PtrTarget {
   kj::Maybe<kj::Function<kj::Promise<void>(kj::Maybe<kj::Date>, kj::Promise<void>)>>
       scheduleRunWithPriorHandler;
   ActorSqliteTestHooks hooks = ActorSqliteTestHooks(*this);
+
+  // Records a scheduleRun() call. The returned promise resolves when the test fulfills the call.
+  kj::Promise<void> recordScheduleRun(kj::Maybe<kj::Date> newAlarmTime) {
+    auto desc = newAlarmTime.map([](auto& t) {
+      return kj::str("scheduleRun(", t, ")");
+    }).orDefault(kj::str("scheduleRun(none)"));
+    auto [promise, fulfiller] = kj::newPromiseAndFulfiller<void>();
+    calls.add(Call{kj::mv(desc), kj::mv(fulfiller)});
+    return kj::mv(promise);
+  }
+
+  // Makes scheduleRun() record each call only once its priorTask completes, as the real alarm
+  // manager waits for priorTask before it sends its request.
+  void recordScheduleRunsAfterPriorTask() {
+    scheduleRunWithPriorHandler = [this](kj::Maybe<kj::Date> newAlarmTime,
+                                      kj::Promise<void> priorTask) -> kj::Promise<void> {
+      return priorTask.then([weakThis = addWeak(), newAlarmTime]() {
+        return KJ_REQUIRE_NONNULL(weakThis.tryGet(), "test ended before scheduleRun")
+            .recordScheduleRun(newAlarmTime);
+      });
+    };
+  }
 
   ActorSqlite actor;
 
@@ -3244,10 +3261,10 @@ KJ_TEST("ActorSqlite alarm preserved after ALARM_RETRY_MAX_TRIES uncounted (inte
   }
 }
 
-KJ_TEST("ActorSqlite abandonAlarm is a no-op when a newer alarm has replaced the abandoned one") {
+KJ_TEST("ActorSqlite abandonAlarm keeps a newer alarm that has replaced the abandoned one") {
   // If the user sets a new alarm between the last retry failure and the abandonAlarm() call,
   // and it has already committed to SQLite, abandonAlarm() must compare the time and leave
-  // the new alarm untouched.
+  // the new alarm set.
 
   ActorSqliteTest test;
 
@@ -3267,16 +3284,207 @@ KJ_TEST("ActorSqlite abandonAlarm is a no-op when a newer alarm has replaced the
   test.pollAndExpectCalls({});
   KJ_ASSERT(expectSync(test.getAlarm()) == twoMs);
 
-  // abandonAlarm() for the original oneMs alarm must be a no-op: storedTime (twoMs) !=
-  // scheduledTime (oneMs), so the time check prevents clearing the new alarm.
-  // Returns twoMs so AlarmManager can re-register the actor's real alarm.
-  auto result = test.actor.abandonAlarm(oneMs).wait(test.ws);
-  test.pollAndExpectCalls({});  // No commit or scheduleRun -- correct no-op.
-
-  KJ_ASSERT(KJ_ASSERT_NONNULL(result) == twoMs);
+  // storedTime (twoMs) != scheduledTime (oneMs), so the time check prevents clearing the new
+  // alarm. abandonAlarm() schedules twoMs again, without committing anything, and returns it.
+  auto promise = test.actor.abandonAlarm(oneMs);
+  test.pollAndExpectCalls({"scheduleRun(2ms)"})[0]->fulfill();
+  KJ_ASSERT(KJ_ASSERT_NONNULL(promise.wait(test.ws)) == twoMs);
+  test.pollAndExpectCalls({});
 
   // getAlarm() must still return twoMs.
   KJ_ASSERT(expectSync(test.getAlarm()) == twoMs);
+}
+
+KJ_TEST("ActorSqlite abandonAlarm reschedules a later alarm whose move-later request failed") {
+  // An alarm handler that moves its alarm later commits the new time to SQLite before asking the
+  // scheduler to move the alarm. If that request fails, e.g. because the instance is aborted
+  // first, the scheduler only has the alarm that ran. When the scheduler abandons that alarm,
+  // abandonAlarm() must schedule the stored alarm again, or it never runs.
+
+  ActorSqliteTest test;
+
+  test.setAlarm(oneMs);
+  test.pollAndExpectCalls({"scheduleRun(1ms)"})[0]->fulfill();
+  test.pollAndExpectCalls({"commit"})[0]->fulfill();
+  test.pollAndExpectCalls({});
+
+  {
+    auto armResult = test.actor.armAlarmHandler(oneMs, nullptr, testCurrentTime);
+    KJ_ASSERT(armResult.is<ActorSqlite::RunAlarmHandler>());
+    test.setAlarm(twoMs);
+    test.pollAndExpectCalls({"commit"})[0]->fulfill();
+    test.pollAndExpectCalls({"scheduleRun(2ms)"})[0]->reject(
+        KJ_EXCEPTION(DISCONNECTED, "move-later request canceled"));
+  }
+  test.pollAndExpectCalls({});
+
+  auto promise = test.actor.abandonAlarm(oneMs);
+  test.pollAndExpectCalls({"scheduleRun(2ms)"})[0]->fulfill();
+  KJ_ASSERT(KJ_ASSERT_NONNULL(promise.wait(test.ws)) == twoMs);
+  test.pollAndExpectCalls({});
+  KJ_ASSERT(expectSync(test.getAlarm()) == twoMs);
+}
+
+KJ_TEST("ActorSqlite abandonAlarm returns the stored alarm when rescheduling it fails") {
+  // The scheduler can then keep the abandoned alarm. Its next run requests the stored alarm again,
+  // since that isn't due yet.
+  for (bool failSynchronously: {false, true}) {
+    KJ_CONTEXT(failSynchronously);
+    ActorSqliteTest test;
+
+    test.setAlarm(oneMs);
+    test.pollAndExpectCalls({"scheduleRun(1ms)"})[0]->fulfill();
+    test.pollAndExpectCalls({"commit"})[0]->fulfill();
+    test.pollAndExpectCalls({});
+    test.setAlarm(twoMs);
+    test.pollAndExpectCalls({"commit"})[0]->fulfill();
+    test.pollAndExpectCalls({"scheduleRun(2ms)"})[0]->fulfill();
+    test.pollAndExpectCalls({});
+
+    kj::Maybe<kj::Promise<kj::Maybe<kj::Date>>> maybePromise;
+    if (failSynchronously) {
+      test.scheduleRunHandler = [](kj::Maybe<kj::Date>) -> kj::Promise<void> {
+        kj::throwFatalException(KJ_EXCEPTION(FAILED, "a_synchronously_thrown_scheduleRun"));
+      };
+      maybePromise = test.actor.abandonAlarm(oneMs);
+      test.scheduleRunHandler = kj::none;
+    } else {
+      maybePromise = test.actor.abandonAlarm(oneMs);
+      test.pollAndExpectCalls({"scheduleRun(2ms)"})[0]->reject(
+          KJ_EXCEPTION(FAILED, "a_rejected_scheduleRun"));
+    }
+    auto& promise = KJ_ASSERT_NONNULL(maybePromise);
+    KJ_ASSERT(KJ_ASSERT_NONNULL(promise.wait(test.ws)) == twoMs);
+
+    auto armResult = test.actor.armAlarmHandler(oneMs, nullptr, testCurrentTime);
+    KJ_ASSERT(armResult.is<ActorSqlite::CancelAlarmHandler>());
+    auto waitBeforeCancel =
+        kj::mv(armResult.get<ActorSqlite::CancelAlarmHandler>().waitBeforeCancel);
+    test.pollAndExpectCalls({"scheduleRun(2ms)"})[0]->fulfill();
+    waitBeforeCancel.wait(test.ws);
+
+    // The failure doesn't break later alarm scheduling.
+    test.setAlarm(threeMs);
+    test.pollAndExpectCalls({"commit"})[0]->fulfill();
+    test.pollAndExpectCalls({"scheduleRun(3ms)"})[0]->fulfill();
+    test.pollAndExpectCalls({});
+  }
+}
+
+KJ_TEST("ActorSqlite abandonAlarm leaves a newer uncommitted alarm for its commit to schedule") {
+  ActorSqliteTest test;
+
+  test.setAlarm(oneMs);
+  test.pollAndExpectCalls({"scheduleRun(1ms)"})[0]->fulfill();
+  test.pollAndExpectCalls({"commit"})[0]->fulfill();
+  test.pollAndExpectCalls({});
+
+  // The commit that moves the alarm later hasn't run yet. abandonAlarm() mustn't schedule a time
+  // that isn't durable yet, since the commit could still fail, and doesn't wait for the commit
+  // either. The commit requests the alarm once it is durable.
+  test.setAlarm(twoMs);
+  auto promise = test.actor.abandonAlarm(oneMs);
+  KJ_ASSERT(promise.poll(test.ws));
+  KJ_ASSERT(KJ_ASSERT_NONNULL(promise.wait(test.ws)) == twoMs);
+  test.pollAndExpectCalls({"commit"})[0]->fulfill();
+  test.pollAndExpectCalls({"scheduleRun(2ms)"})[0]->fulfill();
+  test.pollAndExpectCalls({});
+}
+
+KJ_TEST("ActorSqlite abandonAlarm reschedules the stored alarm after an in-flight move-later") {
+  // The request abandonAlarm() makes waits for the in-flight move-later request, so that the
+  // scheduler ends up with the stored alarm, and replaces the move-later queued behind it, so that
+  // the stored alarm is requested only once.
+  ActorSqliteTest test;
+  test.recordScheduleRunsAfterPriorTask();
+
+  test.setAlarm(oneMs);
+  test.pollAndExpectCalls({"scheduleRun(1ms)"})[0]->fulfill();
+  test.pollAndExpectCalls({"commit"})[0]->fulfill();
+  test.pollAndExpectCalls({});
+
+  test.setAlarm(twoMs);
+  test.pollAndExpectCalls({"commit"})[0]->fulfill();
+  auto moveLater = kj::mv(test.pollAndExpectCalls({"scheduleRun(2ms)"})[0]);
+
+  // This move-later is queued behind the in-flight one.
+  test.setAlarm(threeMs);
+  test.pollAndExpectCalls({"commit"})[0]->fulfill();
+  test.pollAndExpectCalls({});
+
+  auto promise = test.actor.abandonAlarm(oneMs);
+  test.pollAndExpectCalls({});
+
+  moveLater->fulfill();
+  test.pollAndExpectCalls({"scheduleRun(3ms)"})[0]->fulfill();
+  KJ_ASSERT(KJ_ASSERT_NONNULL(promise.wait(test.ws)) == threeMs);
+  test.pollAndExpectCalls({});
+  KJ_ASSERT(expectSync(test.getAlarm()) == threeMs);
+}
+
+KJ_TEST("ActorSqlite abandonAlarm's reschedule doesn't hide a later alarm requested after it") {
+  // The reschedule doesn't move the alarm later, so when it completes it would lower the latest
+  // time the scheduled alarm may fire at to the time it requested. A move-later requested while
+  // the reschedule is in flight may already have scheduled a later alarm by then. If the value
+  // were lowered anyway, a commit that moves the alarm earlier, but not as early as that value,
+  // wouldn't schedule its alarm before committing it.
+  ActorSqliteTest test;
+  test.recordScheduleRunsAfterPriorTask();
+
+  test.setAlarm(oneMs);
+  test.pollAndExpectCalls({"scheduleRun(1ms)"})[0]->fulfill();
+  test.pollAndExpectCalls({"commit"})[0]->fulfill();
+  test.setAlarm(twoMs);
+  test.pollAndExpectCalls({"commit"})[0]->fulfill();
+  test.pollAndExpectCalls({"scheduleRun(2ms)"})[0]->fulfill();
+  test.pollAndExpectCalls({});
+
+  auto promise = test.actor.abandonAlarm(oneMs);
+  auto reschedule = kj::mv(test.pollAndExpectCalls({"scheduleRun(2ms)"})[0]);
+
+  // The move-later waits for the reschedule.
+  test.setAlarm(fourMs);
+  test.pollAndExpectCalls({"commit"})[0]->fulfill();
+  test.pollAndExpectCalls({});
+
+  reschedule->fulfill();
+  test.pollAndExpectCalls({"scheduleRun(4ms)"})[0]->fulfill();
+  KJ_ASSERT(KJ_ASSERT_NONNULL(promise.wait(test.ws)) == twoMs);
+  test.pollAndExpectCalls({});
+
+  // The scheduler has 4ms, so moving the alarm to 3ms schedules it before committing it.
+  test.setAlarm(threeMs);
+  test.pollAndExpectCalls({"scheduleRun(3ms)"})[0]->fulfill();
+  test.pollAndExpectCalls({"commit"})[0]->fulfill();
+  test.pollAndExpectCalls({});
+  KJ_ASSERT(expectSync(test.getAlarm()) == threeMs);
+}
+
+KJ_TEST("ActorSqlite abandonAlarm reschedules the stored alarm in an instance started after it") {
+  // When the instance whose move-later request failed is aborted, a new instance gets the
+  // abandonment. It takes the stored alarm to be committed, so it requests it again.
+  ActorSqliteTest test;
+
+  test.setAlarm(oneMs);
+  test.pollAndExpectCalls({"scheduleRun(1ms)"})[0]->fulfill();
+  test.pollAndExpectCalls({"commit"})[0]->fulfill();
+  {
+    auto armResult = test.actor.armAlarmHandler(oneMs, nullptr, testCurrentTime);
+    KJ_ASSERT(armResult.is<ActorSqlite::RunAlarmHandler>());
+    test.setAlarm(twoMs);
+    test.pollAndExpectCalls({"commit"})[0]->fulfill();
+    test.pollAndExpectCalls({"scheduleRun(2ms)"})[0]->reject(
+        KJ_EXCEPTION(DISCONNECTED, "move-later request canceled"));
+  }
+  test.pollAndExpectCalls({});
+
+  ActorSqlite restarted(kj::heap<SqliteDatabase>(test.vfs, kj::Path({"foo"}), kj::WriteMode::MODIFY),
+      test.gate, KJ_BIND_METHOD(test, commitCallback), test.hooks);
+  auto promise = restarted.abandonAlarm(oneMs);
+  test.pollAndExpectCalls({"scheduleRun(2ms)"})[0]->fulfill();
+  KJ_ASSERT(KJ_ASSERT_NONNULL(promise.wait(test.ws)) == twoMs);
+  test.pollAndExpectCalls({});
+  KJ_ASSERT(expectSync(restarted.getAlarm({})) == twoMs);
 }
 
 KJ_TEST("ActorSqlite abandonAlarm returns kj::none when no alarm is stored") {
@@ -3302,7 +3510,8 @@ KJ_TEST("ActorSqlite abandonAlarm returns kj::none when inAlarmHandler") {
   auto armResult = test.actor.armAlarmHandler(oneMs, nullptr, testCurrentTime);
   KJ_ASSERT(armResult.is<ActorSqlite::RunAlarmHandler>());
 
-  // abandonAlarm while handler is running: returns kj::none (handler owns the alarm).
+  // abandonAlarm while a handler is running: returns kj::none, leaving the alarm state to the
+  // handler.
   auto result = test.actor.abandonAlarm(oneMs).wait(test.ws);
   test.pollAndExpectCalls({});
 
