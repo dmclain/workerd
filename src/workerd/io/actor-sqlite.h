@@ -29,7 +29,7 @@ class ActorSqlite final: public ActorCacheInterface, private kj::TaskSet::ErrorH
     // a promise that resolves when the scheduling has succeeded. `priorTask` is any work we must
     // wait on prior to scheduling the new request, as of this writing, this would be the
     // alarmLaterInFlight promise, which tracks any in-flight request to move the alarm "later"
-    // than is currently set.
+    // than is currently set, or to reschedule the confirmed alarm.
     //
     // The default implementation throws, since there is no alarm manager to talk to. An embedder
     // that constructs an ActorSqlite which can never schedule alarms should override this to
@@ -314,8 +314,9 @@ class ActorSqlite final: public ActorCacheInterface, private kj::TaskSet::ErrorH
   // for the output gate lock hold trace when a non-allowUnconfirmed write occurs.
   SpanParent currentCommitSpan = nullptr;
 
-  // Promise for the currently in-flight "move alarm later" operation, if any.
-  // Used to serialize move-earlier operations against any pending move-later operation.
+  // Promise for the currently in-flight "move alarm later" operation, or reschedule of the
+  // confirmed alarm (see rescheduleConfirmedAlarm()), if any. Used to serialize move-earlier
+  // operations against any such pending operation.
   kj::ForkedPromise<void> alarmLaterInFlight = kj::Promise<void>(kj::READY_NOW).fork();
 
   // True when a "move alarm later" request is currently in-flight via scheduleLaterAlarm().
@@ -353,6 +354,13 @@ class ActorSqlite final: public ActorCacheInterface, private kj::TaskSet::ErrorH
   // immediately. If one is already in-flight, stores the desired time in `pendingLaterAlarmTime`
   // so it will be picked up when the current in-flight operation completes.
   void scheduleLaterAlarm(kj::Maybe<kj::Date> newAlarmTime, SpanParent parentSpan);
+
+  // Requests the alarm scheduler to schedule lastConfirmedAlarmDbState once any in-flight
+  // move-later request completes, and makes requests that wait on alarmLaterInFlight wait for this
+  // one. Used when the scheduler may not have the confirmed db alarm state, e.g. after a failed
+  // request. The returned promise resolves when the scheduler confirms the request, and rejects if
+  // the request fails.
+  kj::Promise<void> rescheduleConfirmedAlarm();
 
   struct PrecommitAlarmState {
     // Promise for the completion of precommit alarm scheduling
