@@ -1,0 +1,6680 @@
+{
+ "node": "v26.12.1",
+ "results": {
+  "empty": {
+   "count": 0,
+   "countBigInt": "0",
+   "min": 9223372036854776000,
+   "minBigInt": "9223372036854775807",
+   "max": 0,
+   "maxBigInt": "0",
+   "mean": null,
+   "stddev": null,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     100,
+     0
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     100,
+     "0"
+    ]
+   ],
+   "percentile": [],
+   "percentileBigInt": [],
+   "toJSON": {
+    "count": 0,
+    "min": 9223372036854776000,
+    "max": 0,
+    "mean": null,
+    "exceeds": 0,
+    "stddev": null,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "100": 0
+    }
+   },
+   "inspect": "Histogram {\n  min: 9223372036854776000,\n  max: 0,\n  mean: NaN,\n  exceeds: 0,\n  stddev: NaN,\n  skewness: 0,\n  kurtosis: 0,\n  count: 0,\n  percentiles: Map(1) { 100 => 0 }\n}"
+  },
+  "default/one": {
+   "count": 1,
+   "countBigInt": "1",
+   "min": 7,
+   "minBigInt": "7",
+   "max": 7,
+   "maxBigInt": "7",
+   "mean": 7,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     7
+    ],
+    [
+     100,
+     7
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "7"
+    ],
+    [
+     100,
+     "7"
+    ]
+   ],
+   "percentile": [
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7
+   ],
+   "percentileBigInt": [
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7"
+   ],
+   "toJSON": {
+    "count": 1,
+    "min": 7,
+    "max": 7,
+    "mean": 7,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 7,
+     "100": 7
+    }
+   },
+   "inspect": "Histogram {\n  min: 7,\n  max: 7,\n  mean: 7,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 1,\n  percentiles: Map(2) { 0 => 7, 100 => 7 }\n}"
+  },
+  "default/zero": {
+   "count": 1,
+   "countBigInt": "1",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 0,
+   "maxBigInt": "0",
+   "mean": 0,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     100,
+     0
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     100,
+     "0"
+    ]
+   ],
+   "percentile": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "percentileBigInt": [
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "toJSON": {
+    "count": 1,
+    "min": 0,
+    "max": 0,
+    "mean": 0,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "100": 0
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 0,\n  mean: 0,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 1,\n  percentiles: Map(2) { 0 => 0, 100 => 0 }\n}"
+  },
+  "default/edges": {
+   "count": 9,
+   "countBigInt": "9",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 9007199254740991,
+   "maxBigInt": "9007199254740991",
+   "mean": 1000677808998941.2,
+   "stddev": 2829955352658280,
+   "skewness": 2.4748736640409454,
+   "kurtosis": 4.124999801675232,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     2048
+    ],
+    [
+     75,
+     999936
+    ],
+    [
+     87.5,
+     1099511627776
+    ],
+    [
+     93.75,
+     9002801208229888
+    ],
+    [
+     100,
+     9002801208229888
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "2048"
+    ],
+    [
+     75,
+     "999936"
+    ],
+    [
+     87.5,
+     "1099511627776"
+    ],
+    [
+     93.75,
+     "9002801208229888"
+    ],
+    [
+     100,
+     "9002801208229888"
+    ]
+   ],
+   "percentile": [
+    1,
+    1,
+    2,
+    2049,
+    1000447,
+    1100585369599,
+    9007199254740991,
+    9007199254740991,
+    9007199254740991,
+    9007199254740991
+   ],
+   "percentileBigInt": [
+    "1",
+    "1",
+    "2",
+    "2049",
+    "1000447",
+    "1100585369599",
+    "9007199254740991",
+    "9007199254740991",
+    "9007199254740991",
+    "9007199254740991"
+   ],
+   "toJSON": {
+    "count": 9,
+    "min": 1,
+    "max": 9007199254740991,
+    "mean": 1000677808998941.2,
+    "exceeds": 0,
+    "stddev": 2829955352658280,
+    "skewness": 2.4748736640409454,
+    "kurtosis": 4.124999801675232,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 1,
+     "50": 2048,
+     "75": 999936,
+     "100": 9002801208229888,
+     "87.5": 1099511627776,
+     "93.75": 9002801208229888
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 9007199254740991,\n  mean: 1000677808998941.2,\n  exceeds: 0,\n  stddev: 2829955352658280,\n  skewness: 2.4748736640409454,\n  kurtosis: 4.124999801675232,\n  count: 9,\n  percentiles: Map(6) {\n    0 => 1,\n    50 => 2048,\n    75 => 999936,\n    87.5 => 1099511627776,\n    93.75 => 9002801208229888,\n    100 => 9002801208229888\n  }\n}"
+  },
+  "default/constant": {
+   "count": 100,
+   "countBigInt": "100",
+   "min": 42,
+   "minBigInt": "42",
+   "max": 42,
+   "maxBigInt": "42",
+   "mean": 42,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     42
+    ],
+    [
+     100,
+     42
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "42"
+    ],
+    [
+     100,
+     "42"
+    ]
+   ],
+   "percentile": [
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42
+   ],
+   "percentileBigInt": [
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42"
+   ],
+   "toJSON": {
+    "count": 100,
+    "min": 42,
+    "max": 42,
+    "mean": 42,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 42,
+     "100": 42
+    }
+   },
+   "inspect": "Histogram {\n  min: 42,\n  max: 42,\n  mean: 42,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 100,\n  percentiles: Map(2) { 0 => 42, 100 => 42 }\n}"
+  },
+  "default/uniform": {
+   "count": 2000,
+   "countBigInt": "2000",
+   "min": 3,
+   "minBigInt": "3",
+   "max": 9999,
+   "maxBigInt": "9999",
+   "mean": 4966.017,
+   "stddev": 2878.915686975046,
+   "skewness": -0.016383070173703333,
+   "kurtosis": -1.1892983333107883,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     3
+    ],
+    [
+     50,
+     5016
+    ],
+    [
+     75,
+     7340
+    ],
+    [
+     87.5,
+     8712
+    ],
+    [
+     93.75,
+     9288
+    ],
+    [
+     96.875,
+     9672
+    ],
+    [
+     98.4375,
+     9808
+    ],
+    [
+     99.21875,
+     9904
+    ],
+    [
+     99.609375,
+     9936
+    ],
+    [
+     99.8046875,
+     9952
+    ],
+    [
+     99.90234375,
+     9976
+    ],
+    [
+     99.951171875,
+     9992
+    ],
+    [
+     100,
+     9992
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "3"
+    ],
+    [
+     50,
+     "5016"
+    ],
+    [
+     75,
+     "7340"
+    ],
+    [
+     87.5,
+     "8712"
+    ],
+    [
+     93.75,
+     "9288"
+    ],
+    [
+     96.875,
+     "9672"
+    ],
+    [
+     98.4375,
+     "9808"
+    ],
+    [
+     99.21875,
+     "9904"
+    ],
+    [
+     99.609375,
+     "9936"
+    ],
+    [
+     99.8046875,
+     "9952"
+    ],
+    [
+     99.90234375,
+     "9976"
+    ],
+    [
+     99.951171875,
+     "9992"
+    ],
+    [
+     100,
+     "9992"
+    ]
+   ],
+   "percentile": [
+    3,
+    93,
+    2457,
+    5019,
+    7343,
+    8959,
+    9879,
+    9975,
+    9999,
+    9999
+   ],
+   "percentileBigInt": [
+    "3",
+    "93",
+    "2457",
+    "5019",
+    "7343",
+    "8959",
+    "9879",
+    "9975",
+    "9999",
+    "9999"
+   ],
+   "toJSON": {
+    "count": 2000,
+    "min": 3,
+    "max": 9999,
+    "mean": 4966.017,
+    "exceeds": 0,
+    "stddev": 2878.915686975046,
+    "skewness": -0.016383070173703333,
+    "kurtosis": -1.1892983333107883,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 3,
+     "50": 5016,
+     "75": 7340,
+     "100": 9992,
+     "87.5": 8712,
+     "93.75": 9288,
+     "96.875": 9672,
+     "98.4375": 9808,
+     "99.21875": 9904,
+     "99.609375": 9936,
+     "99.8046875": 9952,
+     "99.90234375": 9976,
+     "99.951171875": 9992
+    }
+   },
+   "inspect": "Histogram {\n  min: 3,\n  max: 9999,\n  mean: 4966.017,\n  exceeds: 0,\n  stddev: 2878.915686975046,\n  skewness: -0.016383070173703333,\n  kurtosis: -1.1892983333107883,\n  count: 2000,\n  percentiles: Map(13) {\n    0 => 3,\n    50 => 5016,\n    75 => 7340,\n    87.5 => 8712,\n    93.75 => 9288,\n    96.875 => 9672,\n    98.4375 => 9808,\n    99.21875 => 9904,\n    99.609375 => 9936,\n    99.8046875 => 9952,\n    99.90234375 => 9976,\n    99.951171875 => 9992,\n    100 => 9992\n  }\n}"
+  },
+  "default/wide": {
+   "count": 1500,
+   "countBigInt": "1500",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 2147483647,
+   "maxBigInt": "2147483647",
+   "mean": 458774834.93733335,
+   "stddev": 644778807.6889064,
+   "skewness": 1.1814366807004932,
+   "kurtosis": -0.02912675743812443,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     25968640
+    ],
+    [
+     75,
+     815792128
+    ],
+    [
+     87.5,
+     1499463680
+    ],
+    [
+     93.75,
+     1785724928
+    ],
+    [
+     96.875,
+     1935671296
+    ],
+    [
+     98.4375,
+     2044723200
+    ],
+    [
+     99.21875,
+     2095054848
+    ],
+    [
+     99.609375,
+     2130706432
+    ],
+    [
+     99.8046875,
+     2139095040
+    ],
+    [
+     99.90234375,
+     2145386496
+    ],
+    [
+     99.951171875,
+     2146435072
+    ],
+    [
+     100,
+     2146435072
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "25968640"
+    ],
+    [
+     75,
+     "815792128"
+    ],
+    [
+     87.5,
+     "1499463680"
+    ],
+    [
+     93.75,
+     "1785724928"
+    ],
+    [
+     96.875,
+     "1935671296"
+    ],
+    [
+     98.4375,
+     "2044723200"
+    ],
+    [
+     99.21875,
+     "2095054848"
+    ],
+    [
+     99.609375,
+     "2130706432"
+    ],
+    [
+     99.8046875,
+     "2139095040"
+    ],
+    [
+     99.90234375,
+     "2145386496"
+    ],
+    [
+     99.951171875,
+     "2146435072"
+    ],
+    [
+     100,
+     "2146435072"
+    ]
+   ],
+   "percentile": [
+    1,
+    1,
+    3535,
+    25985023,
+    816316415,
+    1624244223,
+    2075131903,
+    2146435071,
+    2147483647,
+    2147483647
+   ],
+   "percentileBigInt": [
+    "1",
+    "1",
+    "3535",
+    "25985023",
+    "816316415",
+    "1624244223",
+    "2075131903",
+    "2146435071",
+    "2147483647",
+    "2147483647"
+   ],
+   "toJSON": {
+    "count": 1500,
+    "min": 1,
+    "max": 2147483647,
+    "mean": 458774834.93733335,
+    "exceeds": 0,
+    "stddev": 644778807.6889064,
+    "skewness": 1.1814366807004932,
+    "kurtosis": -0.02912675743812443,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 1,
+     "50": 25968640,
+     "75": 815792128,
+     "100": 2146435072,
+     "87.5": 1499463680,
+     "93.75": 1785724928,
+     "96.875": 1935671296,
+     "98.4375": 2044723200,
+     "99.21875": 2095054848,
+     "99.609375": 2130706432,
+     "99.8046875": 2139095040,
+     "99.90234375": 2145386496,
+     "99.951171875": 2146435072
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 2147483647,\n  mean: 458774834.93733335,\n  exceeds: 0,\n  stddev: 644778807.6889064,\n  skewness: 1.1814366807004932,\n  kurtosis: -0.02912675743812443,\n  count: 1500,\n  percentiles: Map(13) {\n    0 => 1,\n    50 => 25968640,\n    75 => 815792128,\n    87.5 => 1499463680,\n    93.75 => 1785724928,\n    96.875 => 1935671296,\n    98.4375 => 2044723200,\n    99.21875 => 2095054848,\n    99.609375 => 2130706432,\n    99.8046875 => 2139095040,\n    99.90234375 => 2145386496,\n    99.951171875 => 2146435072,\n    100 => 2146435072\n  }\n}"
+  },
+  "default/tail": {
+   "count": 1000,
+   "countBigInt": "1000",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 943194111,
+   "maxBigInt": "943194111",
+   "mean": 3411690.848,
+   "stddev": 48282105.266329855,
+   "skewness": 15.212348342601157,
+   "kurtosis": 242.30031898751156,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     27
+    ],
+    [
+     75,
+     39
+    ],
+    [
+     87.5,
+     45
+    ],
+    [
+     93.75,
+     48
+    ],
+    [
+     96.875,
+     50
+    ],
+    [
+     98.4375,
+     50
+    ],
+    [
+     99.21875,
+     50
+    ],
+    [
+     99.609375,
+     535035904
+    ],
+    [
+     99.8046875,
+     720371712
+    ],
+    [
+     99.90234375,
+     942669824
+    ],
+    [
+     100,
+     942669824
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "27"
+    ],
+    [
+     75,
+     "39"
+    ],
+    [
+     87.5,
+     "45"
+    ],
+    [
+     93.75,
+     "48"
+    ],
+    [
+     96.875,
+     "50"
+    ],
+    [
+     98.4375,
+     "50"
+    ],
+    [
+     99.21875,
+     "50"
+    ],
+    [
+     99.609375,
+     "535035904"
+    ],
+    [
+     99.8046875,
+     "720371712"
+    ],
+    [
+     99.90234375,
+     "942669824"
+    ],
+    [
+     100,
+     "942669824"
+    ]
+   ],
+   "percentile": [
+    1,
+    2,
+    14,
+    27,
+    39,
+    46,
+    50,
+    720895999,
+    943194111,
+    943194111
+   ],
+   "percentileBigInt": [
+    "1",
+    "2",
+    "14",
+    "27",
+    "39",
+    "46",
+    "50",
+    "720895999",
+    "943194111",
+    "943194111"
+   ],
+   "toJSON": {
+    "count": 1000,
+    "min": 1,
+    "max": 943194111,
+    "mean": 3411690.848,
+    "exceeds": 0,
+    "stddev": 48282105.266329855,
+    "skewness": 15.212348342601157,
+    "kurtosis": 242.30031898751156,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 1,
+     "50": 27,
+     "75": 39,
+     "100": 942669824,
+     "87.5": 45,
+     "93.75": 48,
+     "96.875": 50,
+     "98.4375": 50,
+     "99.21875": 50,
+     "99.609375": 535035904,
+     "99.8046875": 720371712,
+     "99.90234375": 942669824
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 943194111,\n  mean: 3411690.848,\n  exceeds: 0,\n  stddev: 48282105.266329855,\n  skewness: 15.212348342601157,\n  kurtosis: 242.30031898751156,\n  count: 1000,\n  percentiles: Map(12) {\n    0 => 1,\n    50 => 27,\n    75 => 39,\n    87.5 => 45,\n    93.75 => 48,\n    96.875 => 50,\n    98.4375 => 50,\n    99.21875 => 50,\n    99.609375 => 535035904,\n    99.8046875 => 720371712,\n    99.90234375 => 942669824,\n    100 => 942669824\n  }\n}"
+  },
+  "small/one": {
+   "count": 1,
+   "countBigInt": "1",
+   "min": 7,
+   "minBigInt": "7",
+   "max": 7,
+   "maxBigInt": "7",
+   "mean": 7,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     7
+    ],
+    [
+     100,
+     7
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "7"
+    ],
+    [
+     100,
+     "7"
+    ]
+   ],
+   "percentile": [
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7
+   ],
+   "percentileBigInt": [
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7"
+   ],
+   "toJSON": {
+    "count": 1,
+    "min": 7,
+    "max": 7,
+    "mean": 7,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 7,
+     "100": 7
+    }
+   },
+   "inspect": "Histogram {\n  min: 7,\n  max: 7,\n  mean: 7,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 1,\n  percentiles: Map(2) { 0 => 7, 100 => 7 }\n}"
+  },
+  "small/zero": {
+   "count": 1,
+   "countBigInt": "1",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 0,
+   "maxBigInt": "0",
+   "mean": 0,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     100,
+     0
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     100,
+     "0"
+    ]
+   ],
+   "percentile": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "percentileBigInt": [
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "toJSON": {
+    "count": 1,
+    "min": 0,
+    "max": 0,
+    "mean": 0,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "100": 0
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 0,\n  mean: 0,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 1,\n  percentiles: Map(2) { 0 => 0, 100 => 0 }\n}"
+  },
+  "small/edges": {
+   "count": 3,
+   "countBigInt": "3",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 3,
+   "maxBigInt": "3",
+   "mean": 2,
+   "stddev": 0.816496580927726,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 6,
+   "exceedsBigInt": "6",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     2
+    ],
+    [
+     75,
+     3
+    ],
+    [
+     100,
+     3
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "2"
+    ],
+    [
+     75,
+     "3"
+    ],
+    [
+     100,
+     "3"
+    ]
+   ],
+   "percentile": [
+    1,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "percentileBigInt": [
+    "1",
+    "1",
+    "1",
+    "2",
+    "2",
+    "3",
+    "3",
+    "3",
+    "3",
+    "3"
+   ],
+   "toJSON": {
+    "count": 3,
+    "min": 1,
+    "max": 3,
+    "mean": 2,
+    "exceeds": 6,
+    "stddev": 0.816496580927726,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 1,
+     "50": 2,
+     "75": 3,
+     "100": 3
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 3,\n  mean: 2,\n  exceeds: 6,\n  stddev: 0.816496580927726,\n  skewness: 0,\n  kurtosis: 0,\n  count: 3,\n  percentiles: Map(4) { 0 => 1, 50 => 2, 75 => 3, 100 => 3 }\n}"
+  },
+  "small/constant": {
+   "count": 0,
+   "countBigInt": "0",
+   "min": 9223372036854776000,
+   "minBigInt": "9223372036854775807",
+   "max": 0,
+   "maxBigInt": "0",
+   "mean": null,
+   "stddev": null,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 100,
+   "exceedsBigInt": "100",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     100,
+     0
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     100,
+     "0"
+    ]
+   ],
+   "percentile": [],
+   "percentileBigInt": [],
+   "toJSON": {
+    "count": 0,
+    "min": 9223372036854776000,
+    "max": 0,
+    "mean": null,
+    "exceeds": 100,
+    "stddev": null,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "100": 0
+    }
+   },
+   "inspect": "Histogram {\n  min: 9223372036854776000,\n  max: 0,\n  mean: NaN,\n  exceeds: 100,\n  stddev: NaN,\n  skewness: 0,\n  kurtosis: 0,\n  count: 0,\n  percentiles: Map(1) { 100 => 0 }\n}"
+  },
+  "small/uniform": {
+   "count": 2,
+   "countBigInt": "2",
+   "min": 3,
+   "minBigInt": "3",
+   "max": 9,
+   "maxBigInt": "9",
+   "mean": 6,
+   "stddev": 3,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 1998,
+   "exceedsBigInt": "1998",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     3
+    ],
+    [
+     50,
+     3
+    ],
+    [
+     75,
+     9
+    ],
+    [
+     100,
+     9
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "3"
+    ],
+    [
+     50,
+     "3"
+    ],
+    [
+     75,
+     "9"
+    ],
+    [
+     100,
+     "9"
+    ]
+   ],
+   "percentile": [
+    3,
+    3,
+    3,
+    3,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9
+   ],
+   "percentileBigInt": [
+    "3",
+    "3",
+    "3",
+    "3",
+    "9",
+    "9",
+    "9",
+    "9",
+    "9",
+    "9"
+   ],
+   "toJSON": {
+    "count": 2,
+    "min": 3,
+    "max": 9,
+    "mean": 6,
+    "exceeds": 1998,
+    "stddev": 3,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 3,
+     "50": 3,
+     "75": 9,
+     "100": 9
+    }
+   },
+   "inspect": "Histogram {\n  min: 3,\n  max: 9,\n  mean: 6,\n  exceeds: 1998,\n  stddev: 3,\n  skewness: 0,\n  kurtosis: 0,\n  count: 2,\n  percentiles: Map(4) { 0 => 3, 50 => 3, 75 => 9, 100 => 9 }\n}"
+  },
+  "small/wide": {
+   "count": 128,
+   "countBigInt": "128",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 11,
+   "maxBigInt": "11",
+   "mean": 3.984375,
+   "stddev": 2.957998623964352,
+   "skewness": 0.7940251753191345,
+   "kurtosis": -0.46161696316645306,
+   "exceeds": 1372,
+   "exceedsBigInt": "1372",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     3
+    ],
+    [
+     75,
+     6
+    ],
+    [
+     87.5,
+     8
+    ],
+    [
+     93.75,
+     10
+    ],
+    [
+     96.875,
+     10
+    ],
+    [
+     98.4375,
+     11
+    ],
+    [
+     100,
+     11
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "3"
+    ],
+    [
+     75,
+     "6"
+    ],
+    [
+     87.5,
+     "8"
+    ],
+    [
+     93.75,
+     "10"
+    ],
+    [
+     96.875,
+     "10"
+    ],
+    [
+     98.4375,
+     "11"
+    ],
+    [
+     100,
+     "11"
+    ]
+   ],
+   "percentile": [
+    1,
+    1,
+    1,
+    3,
+    6,
+    8,
+    11,
+    11,
+    11,
+    11
+   ],
+   "percentileBigInt": [
+    "1",
+    "1",
+    "1",
+    "3",
+    "6",
+    "8",
+    "11",
+    "11",
+    "11",
+    "11"
+   ],
+   "toJSON": {
+    "count": 128,
+    "min": 1,
+    "max": 11,
+    "mean": 3.984375,
+    "exceeds": 1372,
+    "stddev": 2.957998623964352,
+    "skewness": 0.7940251753191345,
+    "kurtosis": -0.46161696316645306,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 1,
+     "50": 3,
+     "75": 6,
+     "100": 11,
+     "87.5": 8,
+     "93.75": 10,
+     "96.875": 10,
+     "98.4375": 11
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 11,\n  mean: 3.984375,\n  exceeds: 1372,\n  stddev: 2.957998623964352,\n  skewness: 0.7940251753191345,\n  kurtosis: -0.46161696316645306,\n  count: 128,\n  percentiles: Map(8) {\n    0 => 1,\n    50 => 3,\n    75 => 6,\n    87.5 => 8,\n    93.75 => 10,\n    96.875 => 10,\n    98.4375 => 11,\n    100 => 11\n  }\n}"
+  },
+  "small/tail": {
+   "count": 210,
+   "countBigInt": "210",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 11,
+   "maxBigInt": "11",
+   "mean": 6.428571428571429,
+   "stddev": 3.0074736838721754,
+   "skewness": -0.14470997752514875,
+   "kurtosis": -1.2052072065320802,
+   "exceeds": 790,
+   "exceedsBigInt": "790",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     7
+    ],
+    [
+     75,
+     9
+    ],
+    [
+     87.5,
+     10
+    ],
+    [
+     93.75,
+     11
+    ],
+    [
+     100,
+     11
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "7"
+    ],
+    [
+     75,
+     "9"
+    ],
+    [
+     87.5,
+     "10"
+    ],
+    [
+     93.75,
+     "11"
+    ],
+    [
+     100,
+     "11"
+    ]
+   ],
+   "percentile": [
+    1,
+    1,
+    4,
+    7,
+    9,
+    10,
+    11,
+    11,
+    11,
+    11
+   ],
+   "percentileBigInt": [
+    "1",
+    "1",
+    "4",
+    "7",
+    "9",
+    "10",
+    "11",
+    "11",
+    "11",
+    "11"
+   ],
+   "toJSON": {
+    "count": 210,
+    "min": 1,
+    "max": 11,
+    "mean": 6.428571428571429,
+    "exceeds": 790,
+    "stddev": 3.0074736838721754,
+    "skewness": -0.14470997752514875,
+    "kurtosis": -1.2052072065320802,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 1,
+     "50": 7,
+     "75": 9,
+     "100": 11,
+     "87.5": 10,
+     "93.75": 11
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 11,\n  mean: 6.428571428571429,\n  exceeds: 790,\n  stddev: 3.0074736838721754,\n  skewness: -0.14470997752514875,\n  kurtosis: -1.2052072065320802,\n  count: 210,\n  percentiles: Map(6) {\n    0 => 1,\n    50 => 7,\n    75 => 9,\n    87.5 => 10,\n    93.75 => 11,\n    100 => 11\n  }\n}"
+  },
+  "custom/one": {
+   "count": 1,
+   "countBigInt": "1",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 7,
+   "maxBigInt": "7",
+   "mean": 4,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     100,
+     0
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     100,
+     "0"
+    ]
+   ],
+   "percentile": [
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7
+   ],
+   "percentileBigInt": [
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7"
+   ],
+   "toJSON": {
+    "count": 1,
+    "min": 0,
+    "max": 7,
+    "mean": 4,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "100": 0
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 7,\n  mean: 4,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 1,\n  percentiles: Map(2) { 0 => 0, 100 => 0 }\n}"
+  },
+  "custom/zero": {
+   "count": 1,
+   "countBigInt": "1",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 0,
+   "maxBigInt": "0",
+   "mean": 4,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     100,
+     0
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     100,
+     "0"
+    ]
+   ],
+   "percentile": [
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7
+   ],
+   "percentileBigInt": [
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7"
+   ],
+   "toJSON": {
+    "count": 1,
+    "min": 0,
+    "max": 0,
+    "mean": 4,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "100": 0
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 0,\n  mean: 4,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 1,\n  percentiles: Map(2) { 0 => 0, 100 => 0 }\n}"
+  },
+  "custom/edges": {
+   "count": 6,
+   "countBigInt": "6",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 2063,
+   "maxBigInt": "2063",
+   "mean": 1028,
+   "stddev": 1024.007812470198,
+   "skewness": 0.00004571571618902786,
+   "kurtosis": -1.9999392046520088,
+   "exceeds": 3,
+   "exceedsBigInt": "3",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     50,
+     0
+    ],
+    [
+     75,
+     2048
+    ],
+    [
+     100,
+     2048
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     50,
+     "0"
+    ],
+    [
+     75,
+     "2048"
+    ],
+    [
+     100,
+     "2048"
+    ]
+   ],
+   "percentile": [
+    7,
+    7,
+    7,
+    7,
+    2063,
+    2063,
+    2063,
+    2063,
+    2063,
+    2063
+   ],
+   "percentileBigInt": [
+    "7",
+    "7",
+    "7",
+    "7",
+    "2063",
+    "2063",
+    "2063",
+    "2063",
+    "2063",
+    "2063"
+   ],
+   "toJSON": {
+    "count": 6,
+    "min": 0,
+    "max": 2063,
+    "mean": 1028,
+    "exceeds": 3,
+    "stddev": 1024.007812470198,
+    "skewness": 0.00004571571618902786,
+    "kurtosis": -1.9999392046520088,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "50": 0,
+     "75": 2048,
+     "100": 2048
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 2063,\n  mean: 1028,\n  exceeds: 3,\n  stddev: 1024.007812470198,\n  skewness: 0.00004571571618902786,\n  kurtosis: -1.9999392046520088,\n  count: 6,\n  percentiles: Map(4) { 0 => 0, 50 => 0, 75 => 2048, 100 => 2048 }\n}"
+  },
+  "custom/constant": {
+   "count": 100,
+   "countBigInt": "100",
+   "min": 40,
+   "minBigInt": "40",
+   "max": 47,
+   "maxBigInt": "47",
+   "mean": 44,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     40
+    ],
+    [
+     100,
+     40
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "40"
+    ],
+    [
+     100,
+     "40"
+    ]
+   ],
+   "percentile": [
+    47,
+    47,
+    47,
+    47,
+    47,
+    47,
+    47,
+    47,
+    47,
+    47
+   ],
+   "percentileBigInt": [
+    "47",
+    "47",
+    "47",
+    "47",
+    "47",
+    "47",
+    "47",
+    "47",
+    "47",
+    "47"
+   ],
+   "toJSON": {
+    "count": 100,
+    "min": 40,
+    "max": 47,
+    "mean": 44,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 40,
+     "100": 40
+    }
+   },
+   "inspect": "Histogram {\n  min: 40,\n  max: 47,\n  mean: 44,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 100,\n  percentiles: Map(2) { 0 => 40, 100 => 40 }\n}"
+  },
+  "custom/uniform": {
+   "count": 2000,
+   "countBigInt": "2000",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 10047,
+   "maxBigInt": "10047",
+   "mean": 4966.364,
+   "stddev": 2879.0282269376935,
+   "skewness": -0.016050481711651837,
+   "kurtosis": -1.189085303832364,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     50,
+     4992
+    ],
+    [
+     75,
+     7328
+    ],
+    [
+     87.5,
+     8704
+    ],
+    [
+     93.75,
+     9280
+    ],
+    [
+     96.875,
+     9664
+    ],
+    [
+     98.4375,
+     9792
+    ],
+    [
+     99.21875,
+     9856
+    ],
+    [
+     99.609375,
+     9920
+    ],
+    [
+     99.8046875,
+     9920
+    ],
+    [
+     99.90234375,
+     9920
+    ],
+    [
+     99.951171875,
+     9984
+    ],
+    [
+     100,
+     9984
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     50,
+     "4992"
+    ],
+    [
+     75,
+     "7328"
+    ],
+    [
+     87.5,
+     "8704"
+    ],
+    [
+     93.75,
+     "9280"
+    ],
+    [
+     96.875,
+     "9664"
+    ],
+    [
+     98.4375,
+     "9792"
+    ],
+    [
+     99.21875,
+     "9856"
+    ],
+    [
+     99.609375,
+     "9920"
+    ],
+    [
+     99.8046875,
+     "9920"
+    ],
+    [
+     99.90234375,
+     "9920"
+    ],
+    [
+     99.951171875,
+     "9984"
+    ],
+    [
+     100,
+     "9984"
+    ]
+   ],
+   "percentile": [
+    7,
+    95,
+    2463,
+    5023,
+    7359,
+    8959,
+    9919,
+    9983,
+    10047,
+    10047
+   ],
+   "percentileBigInt": [
+    "7",
+    "95",
+    "2463",
+    "5023",
+    "7359",
+    "8959",
+    "9919",
+    "9983",
+    "10047",
+    "10047"
+   ],
+   "toJSON": {
+    "count": 2000,
+    "min": 0,
+    "max": 10047,
+    "mean": 4966.364,
+    "exceeds": 0,
+    "stddev": 2879.0282269376935,
+    "skewness": -0.016050481711651837,
+    "kurtosis": -1.189085303832364,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "50": 4992,
+     "75": 7328,
+     "100": 9984,
+     "87.5": 8704,
+     "93.75": 9280,
+     "96.875": 9664,
+     "98.4375": 9792,
+     "99.21875": 9856,
+     "99.609375": 9920,
+     "99.8046875": 9920,
+     "99.90234375": 9920,
+     "99.951171875": 9984
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 10047,\n  mean: 4966.364,\n  exceeds: 0,\n  stddev: 2879.0282269376935,\n  skewness: -0.016050481711651837,\n  kurtosis: -1.189085303832364,\n  count: 2000,\n  percentiles: Map(13) {\n    0 => 0,\n    50 => 4992,\n    75 => 7328,\n    87.5 => 8704,\n    93.75 => 9280,\n    96.875 => 9664,\n    98.4375 => 9792,\n    99.21875 => 9856,\n    99.609375 => 9920,\n    99.8046875 => 9920,\n    99.90234375 => 9920,\n    99.951171875 => 9984,\n    100 => 9984\n  }\n}"
+  },
+  "custom/wide": {
+   "count": 494,
+   "countBigInt": "494",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 97791,
+   "maxBigInt": "97791",
+   "mean": 6878.2672064777325,
+   "stddev": 16917.613376051486,
+   "skewness": 3.2827626510178787,
+   "kurtosis": 11.009628111517172,
+   "exceeds": 1006,
+   "exceedsBigInt": "1006",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     50,
+     136
+    ],
+    [
+     75,
+     3408
+    ],
+    [
+     87.5,
+     16256
+    ],
+    [
+     93.75,
+     39680
+    ],
+    [
+     96.875,
+     60160
+    ],
+    [
+     98.4375,
+     83456
+    ],
+    [
+     99.21875,
+     92672
+    ],
+    [
+     99.609375,
+     96256
+    ],
+    [
+     99.8046875,
+     97280
+    ],
+    [
+     100,
+     97280
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     50,
+     "136"
+    ],
+    [
+     75,
+     "3408"
+    ],
+    [
+     87.5,
+     "16256"
+    ],
+    [
+     93.75,
+     "39680"
+    ],
+    [
+     96.875,
+     "60160"
+    ],
+    [
+     98.4375,
+     "83456"
+    ],
+    [
+     99.21875,
+     "92672"
+    ],
+    [
+     99.609375,
+     "96256"
+    ],
+    [
+     99.8046875,
+     "97280"
+    ],
+    [
+     100,
+     "97280"
+    ]
+   ],
+   "percentile": [
+    7,
+    7,
+    15,
+    143,
+    3423,
+    24575,
+    87551,
+    97791,
+    97791,
+    97791
+   ],
+   "percentileBigInt": [
+    "7",
+    "7",
+    "15",
+    "143",
+    "3423",
+    "24575",
+    "87551",
+    "97791",
+    "97791",
+    "97791"
+   ],
+   "toJSON": {
+    "count": 494,
+    "min": 0,
+    "max": 97791,
+    "mean": 6878.2672064777325,
+    "exceeds": 1006,
+    "stddev": 16917.613376051486,
+    "skewness": 3.2827626510178787,
+    "kurtosis": 11.009628111517172,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "50": 136,
+     "75": 3408,
+     "100": 97280,
+     "87.5": 16256,
+     "93.75": 39680,
+     "96.875": 60160,
+     "98.4375": 83456,
+     "99.21875": 92672,
+     "99.609375": 96256,
+     "99.8046875": 97280
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 97791,\n  mean: 6878.2672064777325,\n  exceeds: 1006,\n  stddev: 16917.613376051486,\n  skewness: 3.2827626510178787,\n  kurtosis: 11.009628111517172,\n  count: 494,\n  percentiles: Map(11) {\n    0 => 0,\n    50 => 136,\n    75 => 3408,\n    87.5 => 16256,\n    93.75 => 39680,\n    96.875 => 60160,\n    98.4375 => 83456,\n    99.21875 => 92672,\n    99.609375 => 96256,\n    99.8046875 => 97280,\n    100 => 97280\n  }\n}"
+  },
+  "custom/tail": {
+   "count": 993,
+   "countBigInt": "993",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 55,
+   "maxBigInt": "55",
+   "mean": 26.759315206445116,
+   "stddev": 14.486562733553209,
+   "skewness": 0.008587574241846046,
+   "kurtosis": -1.1053778894997446,
+   "exceeds": 7,
+   "exceedsBigInt": "7",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     50,
+     24
+    ],
+    [
+     75,
+     32
+    ],
+    [
+     87.5,
+     40
+    ],
+    [
+     93.75,
+     48
+    ],
+    [
+     100,
+     48
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     50,
+     "24"
+    ],
+    [
+     75,
+     "32"
+    ],
+    [
+     87.5,
+     "40"
+    ],
+    [
+     93.75,
+     "48"
+    ],
+    [
+     100,
+     "48"
+    ]
+   ],
+   "percentile": [
+    7,
+    7,
+    15,
+    31,
+    39,
+    47,
+    55,
+    55,
+    55,
+    55
+   ],
+   "percentileBigInt": [
+    "7",
+    "7",
+    "15",
+    "31",
+    "39",
+    "47",
+    "55",
+    "55",
+    "55",
+    "55"
+   ],
+   "toJSON": {
+    "count": 993,
+    "min": 0,
+    "max": 55,
+    "mean": 26.759315206445116,
+    "exceeds": 7,
+    "stddev": 14.486562733553209,
+    "skewness": 0.008587574241846046,
+    "kurtosis": -1.1053778894997446,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "50": 24,
+     "75": 32,
+     "100": 48,
+     "87.5": 40,
+     "93.75": 48
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 55,\n  mean: 26.759315206445116,\n  exceeds: 7,\n  stddev: 14.486562733553209,\n  skewness: 0.008587574241846046,\n  kurtosis: -1.1053778894997446,\n  count: 993,\n  percentiles: Map(6) {\n    0 => 0,\n    50 => 24,\n    75 => 32,\n    87.5 => 40,\n    93.75 => 48,\n    100 => 48\n  }\n}"
+  },
+  "precise/one": {
+   "count": 1,
+   "countBigInt": "1",
+   "min": 7,
+   "minBigInt": "7",
+   "max": 7,
+   "maxBigInt": "7",
+   "mean": 7,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     7
+    ],
+    [
+     100,
+     7
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "7"
+    ],
+    [
+     100,
+     "7"
+    ]
+   ],
+   "percentile": [
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7
+   ],
+   "percentileBigInt": [
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7"
+   ],
+   "toJSON": {
+    "count": 1,
+    "min": 7,
+    "max": 7,
+    "mean": 7,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 7,
+     "100": 7
+    }
+   },
+   "inspect": "Histogram {\n  min: 7,\n  max: 7,\n  mean: 7,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 1,\n  percentiles: Map(2) { 0 => 7, 100 => 7 }\n}"
+  },
+  "precise/zero": {
+   "count": 1,
+   "countBigInt": "1",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 0,
+   "maxBigInt": "0",
+   "mean": 0,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     100,
+     0
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     100,
+     "0"
+    ]
+   ],
+   "percentile": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "percentileBigInt": [
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "toJSON": {
+    "count": 1,
+    "min": 0,
+    "max": 0,
+    "mean": 0,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "100": 0
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 0,\n  mean: 0,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 1,\n  percentiles: Map(2) { 0 => 0, 100 => 0 }\n}"
+  },
+  "precise/edges": {
+   "count": 7,
+   "countBigInt": "7",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 1000003,
+   "maxBigInt": "1000003",
+   "mean": 143736,
+   "stddev": 349570.41372437193,
+   "skewness": 2.041209985846321,
+   "kurtosis": 2.1665981540787635,
+   "exceeds": 2,
+   "exceedsBigInt": "2",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     2047
+    ],
+    [
+     75,
+     2049
+    ],
+    [
+     87.5,
+     1000000
+    ],
+    [
+     100,
+     1000000
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "2047"
+    ],
+    [
+     75,
+     "2049"
+    ],
+    [
+     87.5,
+     "1000000"
+    ],
+    [
+     100,
+     "1000000"
+    ]
+   ],
+   "percentile": [
+    1,
+    1,
+    2,
+    2047,
+    2048,
+    2049,
+    1000003,
+    1000003,
+    1000003,
+    1000003
+   ],
+   "percentileBigInt": [
+    "1",
+    "1",
+    "2",
+    "2047",
+    "2048",
+    "2049",
+    "1000003",
+    "1000003",
+    "1000003",
+    "1000003"
+   ],
+   "toJSON": {
+    "count": 7,
+    "min": 1,
+    "max": 1000003,
+    "mean": 143736,
+    "exceeds": 2,
+    "stddev": 349570.41372437193,
+    "skewness": 2.041209985846321,
+    "kurtosis": 2.1665981540787635,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 1,
+     "50": 2047,
+     "75": 2049,
+     "100": 1000000,
+     "87.5": 1000000
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 1000003,\n  mean: 143736,\n  exceeds: 2,\n  stddev: 349570.41372437193,\n  skewness: 2.041209985846321,\n  kurtosis: 2.1665981540787635,\n  count: 7,\n  percentiles: Map(5) {\n    0 => 1,\n    50 => 2047,\n    75 => 2049,\n    87.5 => 1000000,\n    100 => 1000000\n  }\n}"
+  },
+  "precise/constant": {
+   "count": 100,
+   "countBigInt": "100",
+   "min": 42,
+   "minBigInt": "42",
+   "max": 42,
+   "maxBigInt": "42",
+   "mean": 42,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     42
+    ],
+    [
+     100,
+     42
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "42"
+    ],
+    [
+     100,
+     "42"
+    ]
+   ],
+   "percentile": [
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42
+   ],
+   "percentileBigInt": [
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42"
+   ],
+   "toJSON": {
+    "count": 100,
+    "min": 42,
+    "max": 42,
+    "mean": 42,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 42,
+     "100": 42
+    }
+   },
+   "inspect": "Histogram {\n  min: 42,\n  max: 42,\n  mean: 42,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 100,\n  percentiles: Map(2) { 0 => 42, 100 => 42 }\n}"
+  },
+  "precise/uniform": {
+   "count": 2000,
+   "countBigInt": "2000",
+   "min": 3,
+   "minBigInt": "3",
+   "max": 9995,
+   "maxBigInt": "9995",
+   "mean": 4965.5585,
+   "stddev": 2878.7129715513056,
+   "skewness": -0.016305416482334096,
+   "kurtosis": -1.189348249612471,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     3
+    ],
+    [
+     50,
+     5017
+    ],
+    [
+     75,
+     7342
+    ],
+    [
+     87.5,
+     8718
+    ],
+    [
+     93.75,
+     9292
+    ],
+    [
+     96.875,
+     9678
+    ],
+    [
+     98.4375,
+     9815
+    ],
+    [
+     99.21875,
+     9907
+    ],
+    [
+     99.609375,
+     9938
+    ],
+    [
+     99.8046875,
+     9957
+    ],
+    [
+     99.90234375,
+     9980
+    ],
+    [
+     99.951171875,
+     9995
+    ],
+    [
+     100,
+     9995
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "3"
+    ],
+    [
+     50,
+     "5017"
+    ],
+    [
+     75,
+     "7342"
+    ],
+    [
+     87.5,
+     "8718"
+    ],
+    [
+     93.75,
+     "9292"
+    ],
+    [
+     96.875,
+     "9678"
+    ],
+    [
+     98.4375,
+     "9815"
+    ],
+    [
+     99.21875,
+     "9907"
+    ],
+    [
+     99.609375,
+     "9938"
+    ],
+    [
+     99.8046875,
+     "9957"
+    ],
+    [
+     99.90234375,
+     "9980"
+    ],
+    [
+     99.951171875,
+     "9995"
+    ],
+    [
+     100,
+     "9995"
+    ]
+   ],
+   "percentile": [
+    3,
+    93,
+    2456,
+    5017,
+    7342,
+    8957,
+    9877,
+    9968,
+    9995,
+    9995
+   ],
+   "percentileBigInt": [
+    "3",
+    "93",
+    "2456",
+    "5017",
+    "7342",
+    "8957",
+    "9877",
+    "9968",
+    "9995",
+    "9995"
+   ],
+   "toJSON": {
+    "count": 2000,
+    "min": 3,
+    "max": 9995,
+    "mean": 4965.5585,
+    "exceeds": 0,
+    "stddev": 2878.7129715513056,
+    "skewness": -0.016305416482334096,
+    "kurtosis": -1.189348249612471,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 3,
+     "50": 5017,
+     "75": 7342,
+     "100": 9995,
+     "87.5": 8718,
+     "93.75": 9292,
+     "96.875": 9678,
+     "98.4375": 9815,
+     "99.21875": 9907,
+     "99.609375": 9938,
+     "99.8046875": 9957,
+     "99.90234375": 9980,
+     "99.951171875": 9995
+    }
+   },
+   "inspect": "Histogram {\n  min: 3,\n  max: 9995,\n  mean: 4965.5585,\n  exceeds: 0,\n  stddev: 2878.7129715513056,\n  skewness: -0.016305416482334096,\n  kurtosis: -1.189348249612471,\n  count: 2000,\n  percentiles: Map(13) {\n    0 => 3,\n    50 => 5017,\n    75 => 7342,\n    87.5 => 8718,\n    93.75 => 9292,\n    96.875 => 9678,\n    98.4375 => 9815,\n    99.21875 => 9907,\n    99.609375 => 9938,\n    99.8046875 => 9957,\n    99.90234375 => 9980,\n    99.951171875 => 9995,\n    100 => 9995\n  }\n}"
+  },
+  "precise/wide": {
+   "count": 586,
+   "countBigInt": "586",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 987635,
+   "maxBigInt": "987635",
+   "mean": 63430.075085324235,
+   "stddev": 167609.2226969617,
+   "skewness": 3.4803375298293995,
+   "kurtosis": 12.192869620703211,
+   "exceeds": 914,
+   "exceedsBigInt": "914",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     405
+    ],
+    [
+     75,
+     21506
+    ],
+    [
+     87.5,
+     140217
+    ],
+    [
+     93.75,
+     361422
+    ],
+    [
+     96.875,
+     685096
+    ],
+    [
+     98.4375,
+     778372
+    ],
+    [
+     99.21875,
+     891440
+    ],
+    [
+     99.609375,
+     932004
+    ],
+    [
+     99.8046875,
+     975664
+    ],
+    [
+     99.90234375,
+     987632
+    ],
+    [
+     100,
+     987632
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "405"
+    ],
+    [
+     75,
+     "21506"
+    ],
+    [
+     87.5,
+     "140217"
+    ],
+    [
+     93.75,
+     "361422"
+    ],
+    [
+     96.875,
+     "685096"
+    ],
+    [
+     98.4375,
+     "778372"
+    ],
+    [
+     99.21875,
+     "891440"
+    ],
+    [
+     99.609375,
+     "932004"
+    ],
+    [
+     99.8046875,
+     "975664"
+    ],
+    [
+     99.90234375,
+     "987632"
+    ],
+    [
+     100,
+     "987632"
+    ]
+   ],
+   "percentile": [
+    1,
+    1,
+    15,
+    405,
+    21506,
+    191229,
+    831507,
+    975667,
+    987635,
+    987635
+   ],
+   "percentileBigInt": [
+    "1",
+    "1",
+    "15",
+    "405",
+    "21506",
+    "191229",
+    "831507",
+    "975667",
+    "987635",
+    "987635"
+   ],
+   "toJSON": {
+    "count": 586,
+    "min": 1,
+    "max": 987635,
+    "mean": 63430.075085324235,
+    "exceeds": 914,
+    "stddev": 167609.2226969617,
+    "skewness": 3.4803375298293995,
+    "kurtosis": 12.192869620703211,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 1,
+     "50": 405,
+     "75": 21506,
+     "100": 987632,
+     "87.5": 140217,
+     "93.75": 361422,
+     "96.875": 685096,
+     "98.4375": 778372,
+     "99.21875": 891440,
+     "99.609375": 932004,
+     "99.8046875": 975664,
+     "99.90234375": 987632
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 987635,\n  mean: 63430.075085324235,\n  exceeds: 914,\n  stddev: 167609.2226969617,\n  skewness: 3.4803375298293995,\n  kurtosis: 12.192869620703211,\n  count: 586,\n  percentiles: Map(12) {\n    0 => 1,\n    50 => 405,\n    75 => 21506,\n    87.5 => 140217,\n    93.75 => 361422,\n    96.875 => 685096,\n    98.4375 => 778372,\n    99.21875 => 891440,\n    99.609375 => 932004,\n    99.8046875 => 975664,\n    99.90234375 => 987632,\n    100 => 987632\n  }\n}"
+  },
+  "precise/tail": {
+   "count": 993,
+   "countBigInt": "993",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 50,
+   "maxBigInt": "50",
+   "mean": 26.134944612286002,
+   "stddev": 14.315321035041718,
+   "skewness": -0.020387235533949184,
+   "kurtosis": -1.1920909694532724,
+   "exceeds": 7,
+   "exceedsBigInt": "7",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     27
+    ],
+    [
+     75,
+     38
+    ],
+    [
+     87.5,
+     45
+    ],
+    [
+     93.75,
+     48
+    ],
+    [
+     96.875,
+     49
+    ],
+    [
+     98.4375,
+     50
+    ],
+    [
+     100,
+     50
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "27"
+    ],
+    [
+     75,
+     "38"
+    ],
+    [
+     87.5,
+     "45"
+    ],
+    [
+     93.75,
+     "48"
+    ],
+    [
+     96.875,
+     "49"
+    ],
+    [
+     98.4375,
+     "50"
+    ],
+    [
+     100,
+     "50"
+    ]
+   ],
+   "percentile": [
+    1,
+    2,
+    14,
+    27,
+    38,
+    46,
+    50,
+    50,
+    50,
+    50
+   ],
+   "percentileBigInt": [
+    "1",
+    "2",
+    "14",
+    "27",
+    "38",
+    "46",
+    "50",
+    "50",
+    "50",
+    "50"
+   ],
+   "toJSON": {
+    "count": 993,
+    "min": 1,
+    "max": 50,
+    "mean": 26.134944612286002,
+    "exceeds": 7,
+    "stddev": 14.315321035041718,
+    "skewness": -0.020387235533949184,
+    "kurtosis": -1.1920909694532724,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 1,
+     "50": 27,
+     "75": 38,
+     "100": 50,
+     "87.5": 45,
+     "93.75": 48,
+     "96.875": 49,
+     "98.4375": 50
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 50,\n  mean: 26.134944612286002,\n  exceeds: 7,\n  stddev: 14.315321035041718,\n  skewness: -0.020387235533949184,\n  kurtosis: -1.1920909694532724,\n  count: 993,\n  percentiles: Map(8) {\n    0 => 1,\n    50 => 27,\n    75 => 38,\n    87.5 => 45,\n    93.75 => 48,\n    96.875 => 49,\n    98.4375 => 50,\n    100 => 50\n  }\n}"
+  },
+  "bigint/one": {
+   "count": 1,
+   "countBigInt": "1",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 511,
+   "maxBigInt": "511",
+   "mean": 256,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     100,
+     0
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     100,
+     "0"
+    ]
+   ],
+   "percentile": [
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    511
+   ],
+   "percentileBigInt": [
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511"
+   ],
+   "toJSON": {
+    "count": 1,
+    "min": 0,
+    "max": 511,
+    "mean": 256,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "100": 0
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 511,\n  mean: 256,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 1,\n  percentiles: Map(2) { 0 => 0, 100 => 0 }\n}"
+  },
+  "bigint/zero": {
+   "count": 1,
+   "countBigInt": "1",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 0,
+   "maxBigInt": "0",
+   "mean": 256,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     100,
+     0
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     100,
+     "0"
+    ]
+   ],
+   "percentile": [
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    511
+   ],
+   "percentileBigInt": [
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511"
+   ],
+   "toJSON": {
+    "count": 1,
+    "min": 0,
+    "max": 0,
+    "mean": 256,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "100": 0
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 0,\n  mean: 256,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 1,\n  percentiles: Map(2) { 0 => 0, 100 => 0 }\n}"
+  },
+  "bigint/edges": {
+   "count": 9,
+   "countBigInt": "9",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 9007199254740991,
+   "maxBigInt": "9007199254740991",
+   "mean": 1000677808999054.2,
+   "stddev": 2829955352658240,
+   "skewness": 2.474873664040946,
+   "kurtosis": 4.124999801675233,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     50,
+     2048
+    ],
+    [
+     75,
+     999936
+    ],
+    [
+     87.5,
+     1099511627776
+    ],
+    [
+     93.75,
+     9002801208229888
+    ],
+    [
+     100,
+     9002801208229888
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     50,
+     "2048"
+    ],
+    [
+     75,
+     "999936"
+    ],
+    [
+     87.5,
+     "1099511627776"
+    ],
+    [
+     93.75,
+     "9002801208229888"
+    ],
+    [
+     100,
+     "9002801208229888"
+    ]
+   ],
+   "percentile": [
+    511,
+    511,
+    511,
+    2559,
+    1000447,
+    1100585369599,
+    9007199254740991,
+    9007199254740991,
+    9007199254740991,
+    9007199254740991
+   ],
+   "percentileBigInt": [
+    "511",
+    "511",
+    "511",
+    "2559",
+    "1000447",
+    "1100585369599",
+    "9007199254740991",
+    "9007199254740991",
+    "9007199254740991",
+    "9007199254740991"
+   ],
+   "toJSON": {
+    "count": 9,
+    "min": 0,
+    "max": 9007199254740991,
+    "mean": 1000677808999054.2,
+    "exceeds": 0,
+    "stddev": 2829955352658240,
+    "skewness": 2.474873664040946,
+    "kurtosis": 4.124999801675233,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "50": 2048,
+     "75": 999936,
+     "100": 9002801208229888,
+     "87.5": 1099511627776,
+     "93.75": 9002801208229888
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 9007199254740991,\n  mean: 1000677808999054.2,\n  exceeds: 0,\n  stddev: 2829955352658240,\n  skewness: 2.474873664040946,\n  kurtosis: 4.124999801675233,\n  count: 9,\n  percentiles: Map(6) {\n    0 => 0,\n    50 => 2048,\n    75 => 999936,\n    87.5 => 1099511627776,\n    93.75 => 9002801208229888,\n    100 => 9002801208229888\n  }\n}"
+  },
+  "bigint/constant": {
+   "count": 100,
+   "countBigInt": "100",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 511,
+   "maxBigInt": "511",
+   "mean": 256,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     100,
+     0
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     100,
+     "0"
+    ]
+   ],
+   "percentile": [
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    511
+   ],
+   "percentileBigInt": [
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511"
+   ],
+   "toJSON": {
+    "count": 100,
+    "min": 0,
+    "max": 511,
+    "mean": 256,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "100": 0
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 511,\n  mean: 256,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 100,\n  percentiles: Map(2) { 0 => 0, 100 => 0 }\n}"
+  },
+  "bigint/uniform": {
+   "count": 2000,
+   "countBigInt": "2000",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 10239,
+   "maxBigInt": "10239",
+   "mean": 4963.584,
+   "stddev": 2879.1371962697435,
+   "skewness": -0.005180010744750937,
+   "kurtosis": -1.1946864716259202,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     50,
+     4608
+    ],
+    [
+     75,
+     7168
+    ],
+    [
+     87.5,
+     8704
+    ],
+    [
+     93.75,
+     9216
+    ],
+    [
+     96.875,
+     9216
+    ],
+    [
+     98.4375,
+     9728
+    ],
+    [
+     100,
+     9728
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     50,
+     "4608"
+    ],
+    [
+     75,
+     "7168"
+    ],
+    [
+     87.5,
+     "8704"
+    ],
+    [
+     93.75,
+     "9216"
+    ],
+    [
+     96.875,
+     "9216"
+    ],
+    [
+     98.4375,
+     "9728"
+    ],
+    [
+     100,
+     "9728"
+    ]
+   ],
+   "percentile": [
+    511,
+    511,
+    2559,
+    5119,
+    7679,
+    9215,
+    10239,
+    10239,
+    10239,
+    10239
+   ],
+   "percentileBigInt": [
+    "511",
+    "511",
+    "2559",
+    "5119",
+    "7679",
+    "9215",
+    "10239",
+    "10239",
+    "10239",
+    "10239"
+   ],
+   "toJSON": {
+    "count": 2000,
+    "min": 0,
+    "max": 10239,
+    "mean": 4963.584,
+    "exceeds": 0,
+    "stddev": 2879.1371962697435,
+    "skewness": -0.005180010744750937,
+    "kurtosis": -1.1946864716259202,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "50": 4608,
+     "75": 7168,
+     "100": 9728,
+     "87.5": 8704,
+     "93.75": 9216,
+     "96.875": 9216,
+     "98.4375": 9728
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 10239,\n  mean: 4963.584,\n  exceeds: 0,\n  stddev: 2879.1371962697435,\n  skewness: -0.005180010744750937,\n  kurtosis: -1.1946864716259202,\n  count: 2000,\n  percentiles: Map(8) {\n    0 => 0,\n    50 => 4608,\n    75 => 7168,\n    87.5 => 8704,\n    93.75 => 9216,\n    96.875 => 9216,\n    98.4375 => 9728,\n    100 => 9728\n  }\n}"
+  },
+  "bigint/wide": {
+   "count": 1500,
+   "countBigInt": "1500",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 2147483647,
+   "maxBigInt": "2147483647",
+   "mean": 458774871.8933333,
+   "stddev": 644778781.3938947,
+   "skewness": 1.1814367403459476,
+   "kurtosis": -0.029126626256625432,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     50,
+     25968640
+    ],
+    [
+     75,
+     815792128
+    ],
+    [
+     87.5,
+     1499463680
+    ],
+    [
+     93.75,
+     1785724928
+    ],
+    [
+     96.875,
+     1935671296
+    ],
+    [
+     98.4375,
+     2044723200
+    ],
+    [
+     99.21875,
+     2095054848
+    ],
+    [
+     99.609375,
+     2130706432
+    ],
+    [
+     99.8046875,
+     2139095040
+    ],
+    [
+     99.90234375,
+     2145386496
+    ],
+    [
+     99.951171875,
+     2146435072
+    ],
+    [
+     100,
+     2146435072
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     50,
+     "25968640"
+    ],
+    [
+     75,
+     "815792128"
+    ],
+    [
+     87.5,
+     "1499463680"
+    ],
+    [
+     93.75,
+     "1785724928"
+    ],
+    [
+     96.875,
+     "1935671296"
+    ],
+    [
+     98.4375,
+     "2044723200"
+    ],
+    [
+     99.21875,
+     "2095054848"
+    ],
+    [
+     99.609375,
+     "2130706432"
+    ],
+    [
+     99.8046875,
+     "2139095040"
+    ],
+    [
+     99.90234375,
+     "2145386496"
+    ],
+    [
+     99.951171875,
+     "2146435072"
+    ],
+    [
+     100,
+     "2146435072"
+    ]
+   ],
+   "percentile": [
+    511,
+    511,
+    3583,
+    25985023,
+    816316415,
+    1624244223,
+    2075131903,
+    2146435071,
+    2147483647,
+    2147483647
+   ],
+   "percentileBigInt": [
+    "511",
+    "511",
+    "3583",
+    "25985023",
+    "816316415",
+    "1624244223",
+    "2075131903",
+    "2146435071",
+    "2147483647",
+    "2147483647"
+   ],
+   "toJSON": {
+    "count": 1500,
+    "min": 0,
+    "max": 2147483647,
+    "mean": 458774871.8933333,
+    "exceeds": 0,
+    "stddev": 644778781.3938947,
+    "skewness": 1.1814367403459476,
+    "kurtosis": -0.029126626256625432,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "50": 25968640,
+     "75": 815792128,
+     "100": 2146435072,
+     "87.5": 1499463680,
+     "93.75": 1785724928,
+     "96.875": 1935671296,
+     "98.4375": 2044723200,
+     "99.21875": 2095054848,
+     "99.609375": 2130706432,
+     "99.8046875": 2139095040,
+     "99.90234375": 2145386496,
+     "99.951171875": 2146435072
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 2147483647,\n  mean: 458774871.8933333,\n  exceeds: 0,\n  stddev: 644778781.3938947,\n  skewness: 1.1814367403459476,\n  kurtosis: -0.029126626256625432,\n  count: 1500,\n  percentiles: Map(13) {\n    0 => 0,\n    50 => 25968640,\n    75 => 815792128,\n    87.5 => 1499463680,\n    93.75 => 1785724928,\n    96.875 => 1935671296,\n    98.4375 => 2044723200,\n    99.21875 => 2095054848,\n    99.609375 => 2130706432,\n    99.8046875 => 2139095040,\n    99.90234375 => 2145386496,\n    99.951171875 => 2146435072,\n    100 => 2146435072\n  }\n}"
+  },
+  "bigint/tail": {
+   "count": 1000,
+   "countBigInt": "1000",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 943194111,
+   "maxBigInt": "943194111",
+   "mean": 3411919.104,
+   "stddev": 48282089.13751806,
+   "skewness": 15.212349475989676,
+   "kurtosis": 242.30035908623015,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     50,
+     0
+    ],
+    [
+     75,
+     0
+    ],
+    [
+     87.5,
+     0
+    ],
+    [
+     93.75,
+     0
+    ],
+    [
+     96.875,
+     0
+    ],
+    [
+     98.4375,
+     0
+    ],
+    [
+     99.21875,
+     0
+    ],
+    [
+     99.609375,
+     535035904
+    ],
+    [
+     99.8046875,
+     720371712
+    ],
+    [
+     99.90234375,
+     942669824
+    ],
+    [
+     100,
+     942669824
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     50,
+     "0"
+    ],
+    [
+     75,
+     "0"
+    ],
+    [
+     87.5,
+     "0"
+    ],
+    [
+     93.75,
+     "0"
+    ],
+    [
+     96.875,
+     "0"
+    ],
+    [
+     98.4375,
+     "0"
+    ],
+    [
+     99.21875,
+     "0"
+    ],
+    [
+     99.609375,
+     "535035904"
+    ],
+    [
+     99.8046875,
+     "720371712"
+    ],
+    [
+     99.90234375,
+     "942669824"
+    ],
+    [
+     100,
+     "942669824"
+    ]
+   ],
+   "percentile": [
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    511,
+    720895999,
+    943194111,
+    943194111
+   ],
+   "percentileBigInt": [
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "511",
+    "720895999",
+    "943194111",
+    "943194111"
+   ],
+   "toJSON": {
+    "count": 1000,
+    "min": 0,
+    "max": 943194111,
+    "mean": 3411919.104,
+    "exceeds": 0,
+    "stddev": 48282089.13751806,
+    "skewness": 15.212349475989676,
+    "kurtosis": 242.30035908623015,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "50": 0,
+     "75": 0,
+     "100": 942669824,
+     "87.5": 0,
+     "93.75": 0,
+     "96.875": 0,
+     "98.4375": 0,
+     "99.21875": 0,
+     "99.609375": 535035904,
+     "99.8046875": 720371712,
+     "99.90234375": 942669824
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 943194111,\n  mean: 3411919.104,\n  exceeds: 0,\n  stddev: 48282089.13751806,\n  skewness: 15.212349475989676,\n  kurtosis: 242.30035908623015,\n  count: 1000,\n  percentiles: Map(12) {\n    0 => 0,\n    50 => 0,\n    75 => 0,\n    87.5 => 0,\n    93.75 => 0,\n    96.875 => 0,\n    98.4375 => 0,\n    99.21875 => 0,\n    99.609375 => 535035904,\n    99.8046875 => 720371712,\n    99.90234375 => 942669824,\n    100 => 942669824\n  }\n}"
+  },
+  "ewma/one": {
+   "count": 1,
+   "countBigInt": "1",
+   "min": 7,
+   "minBigInt": "7",
+   "max": 7,
+   "maxBigInt": "7",
+   "mean": 7,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 7,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     7
+    ],
+    [
+     100,
+     7
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "7"
+    ],
+    [
+     100,
+     "7"
+    ]
+   ],
+   "percentile": [
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7
+   ],
+   "percentileBigInt": [
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7"
+   ],
+   "toJSON": {
+    "count": 1,
+    "min": 7,
+    "max": 7,
+    "mean": 7,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 7,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 7,
+     "100": 7
+    }
+   },
+   "inspect": "Histogram {\n  min: 7,\n  max: 7,\n  mean: 7,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 1,\n  percentiles: Map(2) { 0 => 7, 100 => 7 }\n}"
+  },
+  "ewma/zero": {
+   "count": 1,
+   "countBigInt": "1",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 0,
+   "maxBigInt": "0",
+   "mean": 0,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     100,
+     0
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     100,
+     "0"
+    ]
+   ],
+   "percentile": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "percentileBigInt": [
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "toJSON": {
+    "count": 1,
+    "min": 0,
+    "max": 0,
+    "mean": 0,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "100": 0
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 0,\n  mean: 0,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 1,\n  percentiles: Map(2) { 0 => 0, 100 => 0 }\n}"
+  },
+  "ewma/edges": {
+   "count": 9,
+   "countBigInt": "9",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 9007199254740991,
+   "maxBigInt": "9007199254740991",
+   "mean": 1000677808998941.2,
+   "stddev": 2829955352658280,
+   "skewness": 2.4748736640409454,
+   "kurtosis": 4.124999801675232,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 603253888936895.5,
+   "ewmaStddev": 2251464857230921,
+   "ewmaErrorRate": 0.1877476036437645,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     2048
+    ],
+    [
+     75,
+     999936
+    ],
+    [
+     87.5,
+     1099511627776
+    ],
+    [
+     93.75,
+     9002801208229888
+    ],
+    [
+     100,
+     9002801208229888
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "2048"
+    ],
+    [
+     75,
+     "999936"
+    ],
+    [
+     87.5,
+     "1099511627776"
+    ],
+    [
+     93.75,
+     "9002801208229888"
+    ],
+    [
+     100,
+     "9002801208229888"
+    ]
+   ],
+   "percentile": [
+    1,
+    1,
+    2,
+    2049,
+    1000447,
+    1100585369599,
+    9007199254740991,
+    9007199254740991,
+    9007199254740991,
+    9007199254740991
+   ],
+   "percentileBigInt": [
+    "1",
+    "1",
+    "2",
+    "2049",
+    "1000447",
+    "1100585369599",
+    "9007199254740991",
+    "9007199254740991",
+    "9007199254740991",
+    "9007199254740991"
+   ],
+   "toJSON": {
+    "count": 9,
+    "min": 1,
+    "max": 9007199254740991,
+    "mean": 1000677808998941.2,
+    "exceeds": 0,
+    "stddev": 2829955352658280,
+    "skewness": 2.4748736640409454,
+    "kurtosis": 4.124999801675232,
+    "ewmaMean": 603253888936895.5,
+    "ewmaStddev": 2251464857230921,
+    "ewmaErrorRate": 0.1877476036437645,
+    "percentiles": {
+     "0": 1,
+     "50": 2048,
+     "75": 999936,
+     "100": 9002801208229888,
+     "87.5": 1099511627776,
+     "93.75": 9002801208229888
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 9007199254740991,\n  mean: 1000677808998941.2,\n  exceeds: 0,\n  stddev: 2829955352658280,\n  skewness: 2.4748736640409454,\n  kurtosis: 4.124999801675232,\n  count: 9,\n  percentiles: Map(6) {\n    0 => 1,\n    50 => 2048,\n    75 => 999936,\n    87.5 => 1099511627776,\n    93.75 => 9002801208229888,\n    100 => 9002801208229888\n  }\n}"
+  },
+  "ewma/constant": {
+   "count": 100,
+   "countBigInt": "100",
+   "min": 42,
+   "minBigInt": "42",
+   "max": 42,
+   "maxBigInt": "42",
+   "mean": 42,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 42,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     42
+    ],
+    [
+     100,
+     42
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "42"
+    ],
+    [
+     100,
+     "42"
+    ]
+   ],
+   "percentile": [
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42
+   ],
+   "percentileBigInt": [
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42",
+    "42"
+   ],
+   "toJSON": {
+    "count": 100,
+    "min": 42,
+    "max": 42,
+    "mean": 42,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 42,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 42,
+     "100": 42
+    }
+   },
+   "inspect": "Histogram {\n  min: 42,\n  max: 42,\n  mean: 42,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 100,\n  percentiles: Map(2) { 0 => 42, 100 => 42 }\n}"
+  },
+  "ewma/uniform": {
+   "count": 2000,
+   "countBigInt": "2000",
+   "min": 3,
+   "minBigInt": "3",
+   "max": 9999,
+   "maxBigInt": "9999",
+   "mean": 4966.017,
+   "stddev": 2878.915686975046,
+   "skewness": -0.016383070173703333,
+   "kurtosis": -1.1892983333107883,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 5118.275291862682,
+   "ewmaStddev": 2488.4479703102425,
+   "ewmaErrorRate": 0.494948165418854,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     3
+    ],
+    [
+     50,
+     5016
+    ],
+    [
+     75,
+     7340
+    ],
+    [
+     87.5,
+     8712
+    ],
+    [
+     93.75,
+     9288
+    ],
+    [
+     96.875,
+     9672
+    ],
+    [
+     98.4375,
+     9808
+    ],
+    [
+     99.21875,
+     9904
+    ],
+    [
+     99.609375,
+     9936
+    ],
+    [
+     99.8046875,
+     9952
+    ],
+    [
+     99.90234375,
+     9976
+    ],
+    [
+     99.951171875,
+     9992
+    ],
+    [
+     100,
+     9992
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "3"
+    ],
+    [
+     50,
+     "5016"
+    ],
+    [
+     75,
+     "7340"
+    ],
+    [
+     87.5,
+     "8712"
+    ],
+    [
+     93.75,
+     "9288"
+    ],
+    [
+     96.875,
+     "9672"
+    ],
+    [
+     98.4375,
+     "9808"
+    ],
+    [
+     99.21875,
+     "9904"
+    ],
+    [
+     99.609375,
+     "9936"
+    ],
+    [
+     99.8046875,
+     "9952"
+    ],
+    [
+     99.90234375,
+     "9976"
+    ],
+    [
+     99.951171875,
+     "9992"
+    ],
+    [
+     100,
+     "9992"
+    ]
+   ],
+   "percentile": [
+    3,
+    93,
+    2457,
+    5019,
+    7343,
+    8959,
+    9879,
+    9975,
+    9999,
+    9999
+   ],
+   "percentileBigInt": [
+    "3",
+    "93",
+    "2457",
+    "5019",
+    "7343",
+    "8959",
+    "9879",
+    "9975",
+    "9999",
+    "9999"
+   ],
+   "toJSON": {
+    "count": 2000,
+    "min": 3,
+    "max": 9999,
+    "mean": 4966.017,
+    "exceeds": 0,
+    "stddev": 2878.915686975046,
+    "skewness": -0.016383070173703333,
+    "kurtosis": -1.1892983333107883,
+    "ewmaMean": 5118.275291862682,
+    "ewmaStddev": 2488.4479703102425,
+    "ewmaErrorRate": 0.494948165418854,
+    "percentiles": {
+     "0": 3,
+     "50": 5016,
+     "75": 7340,
+     "100": 9992,
+     "87.5": 8712,
+     "93.75": 9288,
+     "96.875": 9672,
+     "98.4375": 9808,
+     "99.21875": 9904,
+     "99.609375": 9936,
+     "99.8046875": 9952,
+     "99.90234375": 9976,
+     "99.951171875": 9992
+    }
+   },
+   "inspect": "Histogram {\n  min: 3,\n  max: 9999,\n  mean: 4966.017,\n  exceeds: 0,\n  stddev: 2878.915686975046,\n  skewness: -0.016383070173703333,\n  kurtosis: -1.1892983333107883,\n  count: 2000,\n  percentiles: Map(13) {\n    0 => 3,\n    50 => 5016,\n    75 => 7340,\n    87.5 => 8712,\n    93.75 => 9288,\n    96.875 => 9672,\n    98.4375 => 9808,\n    99.21875 => 9904,\n    99.609375 => 9936,\n    99.8046875 => 9952,\n    99.90234375 => 9976,\n    99.951171875 => 9992,\n    100 => 9992\n  }\n}"
+  },
+  "ewma/wide": {
+   "count": 1500,
+   "countBigInt": "1500",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 2147483647,
+   "maxBigInt": "2147483647",
+   "mean": 458774834.93733335,
+   "stddev": 644778807.6889064,
+   "skewness": 1.1814366807004932,
+   "kurtosis": -0.02912675743812443,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 507218738.4786082,
+   "ewmaStddev": 639685115.1772145,
+   "ewmaErrorRate": 0.8002329574908018,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     25968640
+    ],
+    [
+     75,
+     815792128
+    ],
+    [
+     87.5,
+     1499463680
+    ],
+    [
+     93.75,
+     1785724928
+    ],
+    [
+     96.875,
+     1935671296
+    ],
+    [
+     98.4375,
+     2044723200
+    ],
+    [
+     99.21875,
+     2095054848
+    ],
+    [
+     99.609375,
+     2130706432
+    ],
+    [
+     99.8046875,
+     2139095040
+    ],
+    [
+     99.90234375,
+     2145386496
+    ],
+    [
+     99.951171875,
+     2146435072
+    ],
+    [
+     100,
+     2146435072
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "25968640"
+    ],
+    [
+     75,
+     "815792128"
+    ],
+    [
+     87.5,
+     "1499463680"
+    ],
+    [
+     93.75,
+     "1785724928"
+    ],
+    [
+     96.875,
+     "1935671296"
+    ],
+    [
+     98.4375,
+     "2044723200"
+    ],
+    [
+     99.21875,
+     "2095054848"
+    ],
+    [
+     99.609375,
+     "2130706432"
+    ],
+    [
+     99.8046875,
+     "2139095040"
+    ],
+    [
+     99.90234375,
+     "2145386496"
+    ],
+    [
+     99.951171875,
+     "2146435072"
+    ],
+    [
+     100,
+     "2146435072"
+    ]
+   ],
+   "percentile": [
+    1,
+    1,
+    3535,
+    25985023,
+    816316415,
+    1624244223,
+    2075131903,
+    2146435071,
+    2147483647,
+    2147483647
+   ],
+   "percentileBigInt": [
+    "1",
+    "1",
+    "3535",
+    "25985023",
+    "816316415",
+    "1624244223",
+    "2075131903",
+    "2146435071",
+    "2147483647",
+    "2147483647"
+   ],
+   "toJSON": {
+    "count": 1500,
+    "min": 1,
+    "max": 2147483647,
+    "mean": 458774834.93733335,
+    "exceeds": 0,
+    "stddev": 644778807.6889064,
+    "skewness": 1.1814366807004932,
+    "kurtosis": -0.02912675743812443,
+    "ewmaMean": 507218738.4786082,
+    "ewmaStddev": 639685115.1772145,
+    "ewmaErrorRate": 0.8002329574908018,
+    "percentiles": {
+     "0": 1,
+     "50": 25968640,
+     "75": 815792128,
+     "100": 2146435072,
+     "87.5": 1499463680,
+     "93.75": 1785724928,
+     "96.875": 1935671296,
+     "98.4375": 2044723200,
+     "99.21875": 2095054848,
+     "99.609375": 2130706432,
+     "99.8046875": 2139095040,
+     "99.90234375": 2145386496,
+     "99.951171875": 2146435072
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 2147483647,\n  mean: 458774834.93733335,\n  exceeds: 0,\n  stddev: 644778807.6889064,\n  skewness: 1.1814366807004932,\n  kurtosis: -0.02912675743812443,\n  count: 1500,\n  percentiles: Map(13) {\n    0 => 1,\n    50 => 25968640,\n    75 => 815792128,\n    87.5 => 1499463680,\n    93.75 => 1785724928,\n    96.875 => 1935671296,\n    98.4375 => 2044723200,\n    99.21875 => 2095054848,\n    99.609375 => 2130706432,\n    99.8046875 => 2139095040,\n    99.90234375 => 2145386496,\n    99.951171875 => 2146435072,\n    100 => 2146435072\n  }\n}"
+  },
+  "ewma/tail": {
+   "count": 1000,
+   "countBigInt": "1000",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 943194111,
+   "maxBigInt": "943194111",
+   "mean": 3411690.848,
+   "stddev": 48282105.266329855,
+   "skewness": 15.212348342601157,
+   "kurtosis": 242.30031898751156,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 22.645215763452327,
+   "ewmaStddev": 209.2968831969645,
+   "ewmaErrorRate": 9.13075041627887e-14,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     27
+    ],
+    [
+     75,
+     39
+    ],
+    [
+     87.5,
+     45
+    ],
+    [
+     93.75,
+     48
+    ],
+    [
+     96.875,
+     50
+    ],
+    [
+     98.4375,
+     50
+    ],
+    [
+     99.21875,
+     50
+    ],
+    [
+     99.609375,
+     535035904
+    ],
+    [
+     99.8046875,
+     720371712
+    ],
+    [
+     99.90234375,
+     942669824
+    ],
+    [
+     100,
+     942669824
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "27"
+    ],
+    [
+     75,
+     "39"
+    ],
+    [
+     87.5,
+     "45"
+    ],
+    [
+     93.75,
+     "48"
+    ],
+    [
+     96.875,
+     "50"
+    ],
+    [
+     98.4375,
+     "50"
+    ],
+    [
+     99.21875,
+     "50"
+    ],
+    [
+     99.609375,
+     "535035904"
+    ],
+    [
+     99.8046875,
+     "720371712"
+    ],
+    [
+     99.90234375,
+     "942669824"
+    ],
+    [
+     100,
+     "942669824"
+    ]
+   ],
+   "percentile": [
+    1,
+    2,
+    14,
+    27,
+    39,
+    46,
+    50,
+    720895999,
+    943194111,
+    943194111
+   ],
+   "percentileBigInt": [
+    "1",
+    "2",
+    "14",
+    "27",
+    "39",
+    "46",
+    "50",
+    "720895999",
+    "943194111",
+    "943194111"
+   ],
+   "toJSON": {
+    "count": 1000,
+    "min": 1,
+    "max": 943194111,
+    "mean": 3411690.848,
+    "exceeds": 0,
+    "stddev": 48282105.266329855,
+    "skewness": 15.212348342601157,
+    "kurtosis": 242.30031898751156,
+    "ewmaMean": 22.645215763452327,
+    "ewmaStddev": 209.2968831969645,
+    "ewmaErrorRate": 9.13075041627887e-14,
+    "percentiles": {
+     "0": 1,
+     "50": 27,
+     "75": 39,
+     "100": 942669824,
+     "87.5": 45,
+     "93.75": 48,
+     "96.875": 50,
+     "98.4375": 50,
+     "99.21875": 50,
+     "99.609375": 535035904,
+     "99.8046875": 720371712,
+     "99.90234375": 942669824
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 943194111,\n  mean: 3411690.848,\n  exceeds: 0,\n  stddev: 48282105.266329855,\n  skewness: 15.212348342601157,\n  kurtosis: 242.30031898751156,\n  count: 1000,\n  percentiles: Map(12) {\n    0 => 1,\n    50 => 27,\n    75 => 39,\n    87.5 => 45,\n    93.75 => 48,\n    96.875 => 50,\n    98.4375 => 50,\n    99.21875 => 50,\n    99.609375 => 535035904,\n    99.8046875 => 720371712,\n    99.90234375 => 942669824,\n    100 => 942669824\n  }\n}"
+  },
+  "outOfRange": {
+   "count": 5,
+   "countBigInt": "5",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 1007,
+   "maxBigInt": "1007",
+   "mean": 404,
+   "stddev": 486.6473055509503,
+   "skewness": 0.40822090680680134,
+   "kurtosis": -1.8330937786063053,
+   "exceeds": 3,
+   "exceedsBigInt": "3",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     50,
+     8
+    ],
+    [
+     75,
+     992
+    ],
+    [
+     87.5,
+     1000
+    ],
+    [
+     100,
+     1000
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     50,
+     "8"
+    ],
+    [
+     75,
+     "992"
+    ],
+    [
+     87.5,
+     "1000"
+    ],
+    [
+     100,
+     "1000"
+    ]
+   ],
+   "percentile": [
+    7,
+    7,
+    7,
+    15,
+    999,
+    1007,
+    1007,
+    1007,
+    1007,
+    1007
+   ],
+   "percentileBigInt": [
+    "7",
+    "7",
+    "7",
+    "15",
+    "999",
+    "1007",
+    "1007",
+    "1007",
+    "1007",
+    "1007"
+   ],
+   "toJSON": {
+    "count": 5,
+    "min": 0,
+    "max": 1007,
+    "mean": 404,
+    "exceeds": 3,
+    "stddev": 486.6473055509503,
+    "skewness": 0.40822090680680134,
+    "kurtosis": -1.8330937786063053,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "50": 8,
+     "75": 992,
+     "100": 1000,
+     "87.5": 1000
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 1007,\n  mean: 404,\n  exceeds: 3,\n  stddev: 486.6473055509503,\n  skewness: 0.40822090680680134,\n  kurtosis: -1.8330937786063053,\n  count: 5,\n  percentiles: Map(5) { 0 => 0, 50 => 8, 75 => 992, 87.5 => 1000, 100 => 1000 }\n}"
+  },
+  "bigintRecords": {
+   "count": 5,
+   "countBigInt": "5",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 4616189618054758000,
+   "maxBigInt": "4616189618054758399",
+   "mean": 1385983664932572400,
+   "stddev": 1844226415049426000,
+   "skewness": 0.8443115050338226,
+   "kurtosis": -0.9207322030299001,
+   "exceeds": 1,
+   "exceedsBigInt": "1",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     9007199254740992
+    ],
+    [
+     75,
+     2305843009213694000
+    ],
+    [
+     87.5,
+     4611686018427388000
+    ],
+    [
+     100,
+     4611686018427388000
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "9007199254740992"
+    ],
+    [
+     75,
+     "2305843009213693952"
+    ],
+    [
+     87.5,
+     "4611686018427387904"
+    ],
+    [
+     100,
+     "4611686018427387904"
+    ]
+   ],
+   "percentile": [
+    1,
+    1,
+    1,
+    9015995347763200,
+    2308094809027379000,
+    4616189618054758000,
+    4616189618054758000,
+    4616189618054758000,
+    4616189618054758000,
+    4616189618054758000
+   ],
+   "percentileBigInt": [
+    "1",
+    "1",
+    "1",
+    "9015995347763199",
+    "2308094809027379199",
+    "4616189618054758399",
+    "4616189618054758399",
+    "4616189618054758399",
+    "4616189618054758399",
+    "4616189618054758399"
+   ],
+   "toJSON": {
+    "count": 5,
+    "min": 1,
+    "max": 4616189618054758000,
+    "mean": 1385983664932572400,
+    "exceeds": 1,
+    "stddev": 1844226415049426000,
+    "skewness": 0.8443115050338226,
+    "kurtosis": -0.9207322030299001,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 1,
+     "50": 9007199254740992,
+     "75": 2305843009213694000,
+     "100": 4611686018427388000,
+     "87.5": 4611686018427388000
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 4616189618054758000,\n  mean: 1385983664932572400,\n  exceeds: 1,\n  stddev: 1844226415049426000,\n  skewness: 0.8443115050338226,\n  kurtosis: -0.9207322030299001,\n  count: 5,\n  percentiles: Map(5) {\n    0 => 1,\n    50 => 9007199254740992,\n    75 => 2305843009213694000,\n    87.5 => 4611686018427388000,\n    100 => 4611686018427388000\n  }\n}"
+  },
+  "addOther": {
+   "count": 3000,
+   "countBigInt": "3000",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 943194111,
+   "maxBigInt": "943194111",
+   "mean": 1140540.9606666667,
+   "stddev": 27921908.293437313,
+   "skewness": 26.46127016818057,
+   "kurtosis": 736.6099902665807,
+   "exceeds": 1,
+   "exceedsBigInt": "1",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     2478
+    ],
+    [
+     75,
+     6328
+    ],
+    [
+     87.5,
+     8076
+    ],
+    [
+     93.75,
+     9032
+    ],
+    [
+     96.875,
+     9544
+    ],
+    [
+     98.4375,
+     9752
+    ],
+    [
+     99.21875,
+     9880
+    ],
+    [
+     99.609375,
+     9944
+    ],
+    [
+     99.8046875,
+     59080704
+    ],
+    [
+     99.90234375,
+     617086976
+    ],
+    [
+     99.951171875,
+     720371712
+    ],
+    [
+     99.9755859375,
+     942669824
+    ],
+    [
+     100,
+     942669824
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "2478"
+    ],
+    [
+     75,
+     "6328"
+    ],
+    [
+     87.5,
+     "8076"
+    ],
+    [
+     93.75,
+     "9032"
+    ],
+    [
+     96.875,
+     "9544"
+    ],
+    [
+     98.4375,
+     "9752"
+    ],
+    [
+     99.21875,
+     "9880"
+    ],
+    [
+     99.609375,
+     "9944"
+    ],
+    [
+     99.8046875,
+     "59080704"
+    ],
+    [
+     99.90234375,
+     "617086976"
+    ],
+    [
+     99.951171875,
+     "720371712"
+    ],
+    [
+     99.9755859375,
+     "942669824"
+    ],
+    [
+     100,
+     "942669824"
+    ]
+   ],
+   "percentile": [
+    1,
+    2,
+    38,
+    2479,
+    6331,
+    8471,
+    9855,
+    535298047,
+    943194111,
+    943194111
+   ],
+   "percentileBigInt": [
+    "1",
+    "2",
+    "38",
+    "2479",
+    "6331",
+    "8471",
+    "9855",
+    "535298047",
+    "943194111",
+    "943194111"
+   ],
+   "toJSON": {
+    "count": 3000,
+    "min": 1,
+    "max": 943194111,
+    "mean": 1140540.9606666667,
+    "exceeds": 1,
+    "stddev": 27921908.293437313,
+    "skewness": 26.46127016818057,
+    "kurtosis": 736.6099902665807,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 1,
+     "50": 2478,
+     "75": 6328,
+     "100": 942669824,
+     "87.5": 8076,
+     "93.75": 9032,
+     "96.875": 9544,
+     "98.4375": 9752,
+     "99.21875": 9880,
+     "99.609375": 9944,
+     "99.8046875": 59080704,
+     "99.90234375": 617086976,
+     "99.951171875": 720371712,
+     "99.9755859375": 942669824
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 943194111,\n  mean: 1140540.9606666667,\n  exceeds: 1,\n  stddev: 27921908.293437313,\n  skewness: 26.46127016818057,\n  kurtosis: 736.6099902665807,\n  count: 3000,\n  percentiles: Map(14) {\n    0 => 1,\n    50 => 2478,\n    75 => 6328,\n    87.5 => 8076,\n    93.75 => 9032,\n    96.875 => 9544,\n    98.4375 => 9752,\n    99.21875 => 9880,\n    99.609375 => 9944,\n    99.8046875 => 59080704,\n    99.90234375 => 617086976,\n    99.951171875 => 720371712,\n    99.9755859375 => 942669824,\n    100 => 942669824\n  }\n}"
+  },
+  "addSelf": {
+   "count": 6000,
+   "countBigInt": "6000",
+   "min": 1,
+   "minBigInt": "1",
+   "max": 943194111,
+   "maxBigInt": "943194111",
+   "mean": 1140540.9606666667,
+   "stddev": 27921908.293437313,
+   "skewness": 26.46127016818057,
+   "kurtosis": 736.6099902665807,
+   "exceeds": 2,
+   "exceedsBigInt": "2",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     1
+    ],
+    [
+     50,
+     2478
+    ],
+    [
+     75,
+     6328
+    ],
+    [
+     87.5,
+     8076
+    ],
+    [
+     93.75,
+     9032
+    ],
+    [
+     96.875,
+     9544
+    ],
+    [
+     98.4375,
+     9752
+    ],
+    [
+     99.21875,
+     9880
+    ],
+    [
+     99.609375,
+     9944
+    ],
+    [
+     99.8046875,
+     59080704
+    ],
+    [
+     99.90234375,
+     617086976
+    ],
+    [
+     99.951171875,
+     720371712
+    ],
+    [
+     99.9755859375,
+     942669824
+    ],
+    [
+     100,
+     942669824
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "1"
+    ],
+    [
+     50,
+     "2478"
+    ],
+    [
+     75,
+     "6328"
+    ],
+    [
+     87.5,
+     "8076"
+    ],
+    [
+     93.75,
+     "9032"
+    ],
+    [
+     96.875,
+     "9544"
+    ],
+    [
+     98.4375,
+     "9752"
+    ],
+    [
+     99.21875,
+     "9880"
+    ],
+    [
+     99.609375,
+     "9944"
+    ],
+    [
+     99.8046875,
+     "59080704"
+    ],
+    [
+     99.90234375,
+     "617086976"
+    ],
+    [
+     99.951171875,
+     "720371712"
+    ],
+    [
+     99.9755859375,
+     "942669824"
+    ],
+    [
+     100,
+     "942669824"
+    ]
+   ],
+   "percentile": [
+    1,
+    2,
+    38,
+    2479,
+    6331,
+    8471,
+    9855,
+    535298047,
+    943194111,
+    943194111
+   ],
+   "percentileBigInt": [
+    "1",
+    "2",
+    "38",
+    "2479",
+    "6331",
+    "8471",
+    "9855",
+    "535298047",
+    "943194111",
+    "943194111"
+   ],
+   "toJSON": {
+    "count": 6000,
+    "min": 1,
+    "max": 943194111,
+    "mean": 1140540.9606666667,
+    "exceeds": 2,
+    "stddev": 27921908.293437313,
+    "skewness": 26.46127016818057,
+    "kurtosis": 736.6099902665807,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 1,
+     "50": 2478,
+     "75": 6328,
+     "100": 942669824,
+     "87.5": 8076,
+     "93.75": 9032,
+     "96.875": 9544,
+     "98.4375": 9752,
+     "99.21875": 9880,
+     "99.609375": 9944,
+     "99.8046875": 59080704,
+     "99.90234375": 617086976,
+     "99.951171875": 720371712,
+     "99.9755859375": 942669824
+    }
+   },
+   "inspect": "Histogram {\n  min: 1,\n  max: 943194111,\n  mean: 1140540.9606666667,\n  exceeds: 2,\n  stddev: 27921908.293437313,\n  skewness: 26.46127016818057,\n  kurtosis: 736.6099902665807,\n  count: 6000,\n  percentiles: Map(14) {\n    0 => 1,\n    50 => 2478,\n    75 => 6328,\n    87.5 => 8076,\n    93.75 => 9032,\n    96.875 => 9544,\n    98.4375 => 9752,\n    99.21875 => 9880,\n    99.609375 => 9944,\n    99.8046875 => 59080704,\n    99.90234375 => 617086976,\n    99.951171875 => 720371712,\n    99.9755859375 => 942669824,\n    100 => 942669824\n  }\n}"
+  },
+  "addOtherLayout": {
+   "count": 494,
+   "countBigInt": "494",
+   "min": 0,
+   "minBigInt": "0",
+   "max": 97343,
+   "maxBigInt": "97343",
+   "mean": 6859.352226720648,
+   "stddev": 16877.755406095952,
+   "skewness": 3.282230470298379,
+   "kurtosis": 11.005715056831008,
+   "exceeds": 1006,
+   "exceedsBigInt": "1006",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 0,
+   "percentiles": [
+    [
+     0,
+     0
+    ],
+    [
+     50,
+     136
+    ],
+    [
+     75,
+     3408
+    ],
+    [
+     87.5,
+     16256
+    ],
+    [
+     93.75,
+     39680
+    ],
+    [
+     96.875,
+     60160
+    ],
+    [
+     98.4375,
+     83456
+    ],
+    [
+     99.21875,
+     92672
+    ],
+    [
+     99.609375,
+     96256
+    ],
+    [
+     99.8046875,
+     97280
+    ],
+    [
+     100,
+     97280
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "0"
+    ],
+    [
+     50,
+     "136"
+    ],
+    [
+     75,
+     "3408"
+    ],
+    [
+     87.5,
+     "16256"
+    ],
+    [
+     93.75,
+     "39680"
+    ],
+    [
+     96.875,
+     "60160"
+    ],
+    [
+     98.4375,
+     "83456"
+    ],
+    [
+     99.21875,
+     "92672"
+    ],
+    [
+     99.609375,
+     "96256"
+    ],
+    [
+     99.8046875,
+     "97280"
+    ],
+    [
+     100,
+     "97280"
+    ]
+   ],
+   "percentile": [
+    0,
+    0,
+    8,
+    136,
+    3409,
+    24463,
+    87103,
+    97343,
+    97343,
+    97343
+   ],
+   "percentileBigInt": [
+    "0",
+    "0",
+    "8",
+    "136",
+    "3409",
+    "24463",
+    "87103",
+    "97343",
+    "97343",
+    "97343"
+   ],
+   "toJSON": {
+    "count": 494,
+    "min": 0,
+    "max": 97343,
+    "mean": 6859.352226720648,
+    "exceeds": 1006,
+    "stddev": 16877.755406095952,
+    "skewness": 3.282230470298379,
+    "kurtosis": 11.005715056831008,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 0,
+     "50": 136,
+     "75": 3408,
+     "100": 97280,
+     "87.5": 16256,
+     "93.75": 39680,
+     "96.875": 60160,
+     "98.4375": 83456,
+     "99.21875": 92672,
+     "99.609375": 96256,
+     "99.8046875": 97280
+    }
+   },
+   "inspect": "Histogram {\n  min: 0,\n  max: 97343,\n  mean: 6859.352226720648,\n  exceeds: 1006,\n  stddev: 16877.755406095952,\n  skewness: 3.282230470298379,\n  kurtosis: 11.005715056831008,\n  count: 494,\n  percentiles: Map(11) {\n    0 => 0,\n    50 => 136,\n    75 => 3408,\n    87.5 => 16256,\n    93.75 => 39680,\n    96.875 => 60160,\n    98.4375 => 83456,\n    99.21875 => 92672,\n    99.609375 => 96256,\n    99.8046875 => 97280,\n    100 => 97280\n  }\n}"
+  },
+  "afterReset": {
+   "count": 0,
+   "countBigInt": "0",
+   "min": 9223372036854776000,
+   "minBigInt": "9223372036854775807",
+   "max": 0,
+   "maxBigInt": "0",
+   "mean": null,
+   "stddev": null,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 0,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 1,
+   "percentiles": [
+    [
+     100,
+     0
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     100,
+     "0"
+    ]
+   ],
+   "percentile": [],
+   "percentileBigInt": [],
+   "toJSON": {
+    "count": 0,
+    "min": 9223372036854776000,
+    "max": 0,
+    "mean": null,
+    "exceeds": 0,
+    "stddev": null,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 0,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "100": 0
+    }
+   },
+   "inspect": "Histogram {\n  min: 9223372036854776000,\n  max: 0,\n  mean: NaN,\n  exceeds: 0,\n  stddev: NaN,\n  skewness: 0,\n  kurtosis: 0,\n  count: 0,\n  percentiles: Map(1) { 100 => 0 }\n}"
+  },
+  "afterTwoResets": {
+   "count": 1,
+   "countBigInt": "1",
+   "min": 4,
+   "minBigInt": "4",
+   "max": 4,
+   "maxBigInt": "4",
+   "mean": 4,
+   "stddev": 0,
+   "skewness": 0,
+   "kurtosis": 0,
+   "exceeds": 0,
+   "exceedsBigInt": "0",
+   "ewmaMean": 4,
+   "ewmaStddev": 0,
+   "ewmaErrorRate": 0,
+   "resetCount": 2,
+   "percentiles": [
+    [
+     0,
+     4
+    ],
+    [
+     100,
+     4
+    ]
+   ],
+   "percentilesBigInt": [
+    [
+     0,
+     "4"
+    ],
+    [
+     100,
+     "4"
+    ]
+   ],
+   "percentile": [
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4
+   ],
+   "percentileBigInt": [
+    "4",
+    "4",
+    "4",
+    "4",
+    "4",
+    "4",
+    "4",
+    "4",
+    "4",
+    "4"
+   ],
+   "toJSON": {
+    "count": 1,
+    "min": 4,
+    "max": 4,
+    "mean": 4,
+    "exceeds": 0,
+    "stddev": 0,
+    "skewness": 0,
+    "kurtosis": 0,
+    "ewmaMean": 4,
+    "ewmaStddev": 0,
+    "ewmaErrorRate": 0,
+    "percentiles": {
+     "0": 4,
+     "100": 4
+    }
+   },
+   "inspect": "Histogram {\n  min: 4,\n  max: 4,\n  mean: 4,\n  exceeds: 0,\n  stddev: 0,\n  skewness: 0,\n  kurtosis: 0,\n  count: 1,\n  percentiles: Map(2) { 0 => 4, 100 => 4 }\n}"
+  },
+  "thresholdEdges": [
+   {
+    "count": 1000,
+    "countBigInt": "1000",
+    "min": 1,
+    "minBigInt": "1",
+    "max": 943194111,
+    "maxBigInt": "943194111",
+    "mean": 3411690.848,
+    "stddev": 48282105.266329855,
+    "skewness": 15.212348342601157,
+    "kurtosis": 242.30031898751156,
+    "exceeds": 0,
+    "exceedsBigInt": "0",
+    "ewmaMean": 22.645215763452327,
+    "ewmaStddev": 209.2968831969645,
+    "ewmaErrorRate": 0,
+    "resetCount": 0,
+    "percentiles": [
+     [
+      0,
+      1
+     ],
+     [
+      50,
+      27
+     ],
+     [
+      75,
+      39
+     ],
+     [
+      87.5,
+      45
+     ],
+     [
+      93.75,
+      48
+     ],
+     [
+      96.875,
+      50
+     ],
+     [
+      98.4375,
+      50
+     ],
+     [
+      99.21875,
+      50
+     ],
+     [
+      99.609375,
+      535035904
+     ],
+     [
+      99.8046875,
+      720371712
+     ],
+     [
+      99.90234375,
+      942669824
+     ],
+     [
+      100,
+      942669824
+     ]
+    ],
+    "percentilesBigInt": [
+     [
+      0,
+      "1"
+     ],
+     [
+      50,
+      "27"
+     ],
+     [
+      75,
+      "39"
+     ],
+     [
+      87.5,
+      "45"
+     ],
+     [
+      93.75,
+      "48"
+     ],
+     [
+      96.875,
+      "50"
+     ],
+     [
+      98.4375,
+      "50"
+     ],
+     [
+      99.21875,
+      "50"
+     ],
+     [
+      99.609375,
+      "535035904"
+     ],
+     [
+      99.8046875,
+      "720371712"
+     ],
+     [
+      99.90234375,
+      "942669824"
+     ],
+     [
+      100,
+      "942669824"
+     ]
+    ],
+    "percentile": [
+     1,
+     2,
+     14,
+     27,
+     39,
+     46,
+     50,
+     720895999,
+     943194111,
+     943194111
+    ],
+    "percentileBigInt": [
+     "1",
+     "2",
+     "14",
+     "27",
+     "39",
+     "46",
+     "50",
+     "720895999",
+     "943194111",
+     "943194111"
+    ],
+    "toJSON": {
+     "count": 1000,
+     "min": 1,
+     "max": 943194111,
+     "mean": 3411690.848,
+     "exceeds": 0,
+     "stddev": 48282105.266329855,
+     "skewness": 15.212348342601157,
+     "kurtosis": 242.30031898751156,
+     "ewmaMean": 22.645215763452327,
+     "ewmaStddev": 209.2968831969645,
+     "ewmaErrorRate": 0,
+     "percentiles": {
+      "0": 1,
+      "50": 27,
+      "75": 39,
+      "100": 942669824,
+      "87.5": 45,
+      "93.75": 48,
+      "96.875": 50,
+      "98.4375": 50,
+      "99.21875": 50,
+      "99.609375": 535035904,
+      "99.8046875": 720371712,
+      "99.90234375": 942669824
+     }
+    },
+    "inspect": "Histogram {\n  min: 1,\n  max: 943194111,\n  mean: 3411690.848,\n  exceeds: 0,\n  stddev: 48282105.266329855,\n  skewness: 15.212348342601157,\n  kurtosis: 242.30031898751156,\n  count: 1000,\n  percentiles: Map(12) {\n    0 => 1,\n    50 => 27,\n    75 => 39,\n    87.5 => 45,\n    93.75 => 48,\n    96.875 => 50,\n    98.4375 => 50,\n    99.21875 => 50,\n    99.609375 => 535035904,\n    99.8046875 => 720371712,\n    99.90234375 => 942669824,\n    100 => 942669824\n  }\n}"
+   },
+   {
+    "count": 1000,
+    "countBigInt": "1000",
+    "min": 1,
+    "minBigInt": "1",
+    "max": 943194111,
+    "maxBigInt": "943194111",
+    "mean": 3411690.848,
+    "stddev": 48282105.266329855,
+    "skewness": 15.212348342601157,
+    "kurtosis": 242.30031898751156,
+    "exceeds": 0,
+    "exceedsBigInt": "0",
+    "ewmaMean": 22.645215763452327,
+    "ewmaStddev": 209.2968831969645,
+    "ewmaErrorRate": 0,
+    "resetCount": 0,
+    "percentiles": [
+     [
+      0,
+      1
+     ],
+     [
+      50,
+      27
+     ],
+     [
+      75,
+      39
+     ],
+     [
+      87.5,
+      45
+     ],
+     [
+      93.75,
+      48
+     ],
+     [
+      96.875,
+      50
+     ],
+     [
+      98.4375,
+      50
+     ],
+     [
+      99.21875,
+      50
+     ],
+     [
+      99.609375,
+      535035904
+     ],
+     [
+      99.8046875,
+      720371712
+     ],
+     [
+      99.90234375,
+      942669824
+     ],
+     [
+      100,
+      942669824
+     ]
+    ],
+    "percentilesBigInt": [
+     [
+      0,
+      "1"
+     ],
+     [
+      50,
+      "27"
+     ],
+     [
+      75,
+      "39"
+     ],
+     [
+      87.5,
+      "45"
+     ],
+     [
+      93.75,
+      "48"
+     ],
+     [
+      96.875,
+      "50"
+     ],
+     [
+      98.4375,
+      "50"
+     ],
+     [
+      99.21875,
+      "50"
+     ],
+     [
+      99.609375,
+      "535035904"
+     ],
+     [
+      99.8046875,
+      "720371712"
+     ],
+     [
+      99.90234375,
+      "942669824"
+     ],
+     [
+      100,
+      "942669824"
+     ]
+    ],
+    "percentile": [
+     1,
+     2,
+     14,
+     27,
+     39,
+     46,
+     50,
+     720895999,
+     943194111,
+     943194111
+    ],
+    "percentileBigInt": [
+     "1",
+     "2",
+     "14",
+     "27",
+     "39",
+     "46",
+     "50",
+     "720895999",
+     "943194111",
+     "943194111"
+    ],
+    "toJSON": {
+     "count": 1000,
+     "min": 1,
+     "max": 943194111,
+     "mean": 3411690.848,
+     "exceeds": 0,
+     "stddev": 48282105.266329855,
+     "skewness": 15.212348342601157,
+     "kurtosis": 242.30031898751156,
+     "ewmaMean": 22.645215763452327,
+     "ewmaStddev": 209.2968831969645,
+     "ewmaErrorRate": 0,
+     "percentiles": {
+      "0": 1,
+      "50": 27,
+      "75": 39,
+      "100": 942669824,
+      "87.5": 45,
+      "93.75": 48,
+      "96.875": 50,
+      "98.4375": 50,
+      "99.21875": 50,
+      "99.609375": 535035904,
+      "99.8046875": 720371712,
+      "99.90234375": 942669824
+     }
+    },
+    "inspect": "Histogram {\n  min: 1,\n  max: 943194111,\n  mean: 3411690.848,\n  exceeds: 0,\n  stddev: 48282105.266329855,\n  skewness: 15.212348342601157,\n  kurtosis: 242.30031898751156,\n  count: 1000,\n  percentiles: Map(12) {\n    0 => 1,\n    50 => 27,\n    75 => 39,\n    87.5 => 45,\n    93.75 => 48,\n    96.875 => 50,\n    98.4375 => 50,\n    99.21875 => 50,\n    99.609375 => 535035904,\n    99.8046875 => 720371712,\n    99.90234375 => 942669824,\n    100 => 942669824\n  }\n}"
+   },
+   {
+    "count": 1000,
+    "countBigInt": "1000",
+    "min": 1,
+    "minBigInt": "1",
+    "max": 943194111,
+    "maxBigInt": "943194111",
+    "mean": 3411690.848,
+    "stddev": 48282105.266329855,
+    "skewness": 15.212348342601157,
+    "kurtosis": 242.30031898751156,
+    "exceeds": 0,
+    "exceedsBigInt": "0",
+    "ewmaMean": 22.645215763452327,
+    "ewmaStddev": 209.2968831969645,
+    "ewmaErrorRate": 0,
+    "resetCount": 0,
+    "percentiles": [
+     [
+      0,
+      1
+     ],
+     [
+      50,
+      27
+     ],
+     [
+      75,
+      39
+     ],
+     [
+      87.5,
+      45
+     ],
+     [
+      93.75,
+      48
+     ],
+     [
+      96.875,
+      50
+     ],
+     [
+      98.4375,
+      50
+     ],
+     [
+      99.21875,
+      50
+     ],
+     [
+      99.609375,
+      535035904
+     ],
+     [
+      99.8046875,
+      720371712
+     ],
+     [
+      99.90234375,
+      942669824
+     ],
+     [
+      100,
+      942669824
+     ]
+    ],
+    "percentilesBigInt": [
+     [
+      0,
+      "1"
+     ],
+     [
+      50,
+      "27"
+     ],
+     [
+      75,
+      "39"
+     ],
+     [
+      87.5,
+      "45"
+     ],
+     [
+      93.75,
+      "48"
+     ],
+     [
+      96.875,
+      "50"
+     ],
+     [
+      98.4375,
+      "50"
+     ],
+     [
+      99.21875,
+      "50"
+     ],
+     [
+      99.609375,
+      "535035904"
+     ],
+     [
+      99.8046875,
+      "720371712"
+     ],
+     [
+      99.90234375,
+      "942669824"
+     ],
+     [
+      100,
+      "942669824"
+     ]
+    ],
+    "percentile": [
+     1,
+     2,
+     14,
+     27,
+     39,
+     46,
+     50,
+     720895999,
+     943194111,
+     943194111
+    ],
+    "percentileBigInt": [
+     "1",
+     "2",
+     "14",
+     "27",
+     "39",
+     "46",
+     "50",
+     "720895999",
+     "943194111",
+     "943194111"
+    ],
+    "toJSON": {
+     "count": 1000,
+     "min": 1,
+     "max": 943194111,
+     "mean": 3411690.848,
+     "exceeds": 0,
+     "stddev": 48282105.266329855,
+     "skewness": 15.212348342601157,
+     "kurtosis": 242.30031898751156,
+     "ewmaMean": 22.645215763452327,
+     "ewmaStddev": 209.2968831969645,
+     "ewmaErrorRate": 0,
+     "percentiles": {
+      "0": 1,
+      "50": 27,
+      "75": 39,
+      "100": 942669824,
+      "87.5": 45,
+      "93.75": 48,
+      "96.875": 50,
+      "98.4375": 50,
+      "99.21875": 50,
+      "99.609375": 535035904,
+      "99.8046875": 720371712,
+      "99.90234375": 942669824
+     }
+    },
+    "inspect": "Histogram {\n  min: 1,\n  max: 943194111,\n  mean: 3411690.848,\n  exceeds: 0,\n  stddev: 48282105.266329855,\n  skewness: 15.212348342601157,\n  kurtosis: 242.30031898751156,\n  count: 1000,\n  percentiles: Map(12) {\n    0 => 1,\n    50 => 27,\n    75 => 39,\n    87.5 => 45,\n    93.75 => 48,\n    96.875 => 50,\n    98.4375 => 50,\n    99.21875 => 50,\n    99.609375 => 535035904,\n    99.8046875 => 720371712,\n    99.90234375 => 942669824,\n    100 => 942669824\n  }\n}"
+   },
+   {
+    "count": 1000,
+    "countBigInt": "1000",
+    "min": 1,
+    "minBigInt": "1",
+    "max": 943194111,
+    "maxBigInt": "943194111",
+    "mean": 3411690.848,
+    "stddev": 48282105.266329855,
+    "skewness": 15.212348342601157,
+    "kurtosis": 242.30031898751156,
+    "exceeds": 0,
+    "exceedsBigInt": "0",
+    "ewmaMean": 22.645215763452327,
+    "ewmaStddev": 209.2968831969645,
+    "ewmaErrorRate": 0.9868455252214373,
+    "resetCount": 0,
+    "percentiles": [
+     [
+      0,
+      1
+     ],
+     [
+      50,
+      27
+     ],
+     [
+      75,
+      39
+     ],
+     [
+      87.5,
+      45
+     ],
+     [
+      93.75,
+      48
+     ],
+     [
+      96.875,
+      50
+     ],
+     [
+      98.4375,
+      50
+     ],
+     [
+      99.21875,
+      50
+     ],
+     [
+      99.609375,
+      535035904
+     ],
+     [
+      99.8046875,
+      720371712
+     ],
+     [
+      99.90234375,
+      942669824
+     ],
+     [
+      100,
+      942669824
+     ]
+    ],
+    "percentilesBigInt": [
+     [
+      0,
+      "1"
+     ],
+     [
+      50,
+      "27"
+     ],
+     [
+      75,
+      "39"
+     ],
+     [
+      87.5,
+      "45"
+     ],
+     [
+      93.75,
+      "48"
+     ],
+     [
+      96.875,
+      "50"
+     ],
+     [
+      98.4375,
+      "50"
+     ],
+     [
+      99.21875,
+      "50"
+     ],
+     [
+      99.609375,
+      "535035904"
+     ],
+     [
+      99.8046875,
+      "720371712"
+     ],
+     [
+      99.90234375,
+      "942669824"
+     ],
+     [
+      100,
+      "942669824"
+     ]
+    ],
+    "percentile": [
+     1,
+     2,
+     14,
+     27,
+     39,
+     46,
+     50,
+     720895999,
+     943194111,
+     943194111
+    ],
+    "percentileBigInt": [
+     "1",
+     "2",
+     "14",
+     "27",
+     "39",
+     "46",
+     "50",
+     "720895999",
+     "943194111",
+     "943194111"
+    ],
+    "toJSON": {
+     "count": 1000,
+     "min": 1,
+     "max": 943194111,
+     "mean": 3411690.848,
+     "exceeds": 0,
+     "stddev": 48282105.266329855,
+     "skewness": 15.212348342601157,
+     "kurtosis": 242.30031898751156,
+     "ewmaMean": 22.645215763452327,
+     "ewmaStddev": 209.2968831969645,
+     "ewmaErrorRate": 0.9868455252214373,
+     "percentiles": {
+      "0": 1,
+      "50": 27,
+      "75": 39,
+      "100": 942669824,
+      "87.5": 45,
+      "93.75": 48,
+      "96.875": 50,
+      "98.4375": 50,
+      "99.21875": 50,
+      "99.609375": 535035904,
+      "99.8046875": 720371712,
+      "99.90234375": 942669824
+     }
+    },
+    "inspect": "Histogram {\n  min: 1,\n  max: 943194111,\n  mean: 3411690.848,\n  exceeds: 0,\n  stddev: 48282105.266329855,\n  skewness: 15.212348342601157,\n  kurtosis: 242.30031898751156,\n  count: 1000,\n  percentiles: Map(12) {\n    0 => 1,\n    50 => 27,\n    75 => 39,\n    87.5 => 45,\n    93.75 => 48,\n    96.875 => 50,\n    98.4375 => 50,\n    99.21875 => 50,\n    99.609375 => 535035904,\n    99.8046875 => 720371712,\n    99.90234375 => 942669824,\n    100 => 942669824\n  }\n}"
+   }
+  ],
+  "errors": {
+   "optionsString": {
+    "name": "TypeError",
+    "code": "ERR_INVALID_ARG_TYPE",
+    "message": "The \"options\" argument must be of type object. Received type string ('hello')"
+   },
+   "optionsNull": {
+    "name": "TypeError",
+    "code": "ERR_INVALID_ARG_TYPE",
+    "message": "The \"options\" argument must be of type object. Received null"
+   },
+   "lowestZero": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"options.lowest\" is out of range. It must be >= 1 && <= 9007199254740991. Received 0"
+   },
+   "lowestFraction": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"options.lowest\" is out of range. It must be an integer. Received 1.5"
+   },
+   "lowestBigZero": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"options.lowest\" is out of range. It must be >= 1n && <= 9223372036854775807n. Received 0n"
+   },
+   "lowestString": {
+    "name": "TypeError",
+    "code": "ERR_INVALID_ARG_TYPE",
+    "message": "The \"options.lowest\" property must be of type number. Received type string ('1')"
+   },
+   "highestTooSmall": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"options.highest\" is out of range. It must be >= 2 * options.lowest (20n). Received 19"
+   },
+   "highestBigTooLarge": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"options.highest\" is out of range. It must be >= 1n && <= 9223372036854775807n. Received 9_223_372_036_854_775_808n"
+   },
+   "highestUnsafe": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"options.highest\" is out of range. It must be >= 1 && <= 9007199254740991. Received 9_007_199_254_740_992"
+   },
+   "figuresZero": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"options.figures\" is out of range. It must be >= 1 && <= 5. Received 0"
+   },
+   "figuresSix": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"options.figures\" is out of range. It must be >= 1 && <= 5. Received 6"
+   },
+   "figuresBigInt": {
+    "name": "TypeError",
+    "code": "ERR_INVALID_ARG_TYPE",
+    "message": "The \"options.figures\" property must be of type number. Received type bigint (3n)"
+   },
+   "halfLifeNegative": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"options.halfLife\" is out of range. It must be >= 0. Received -1"
+   },
+   "halfLifeString": {
+    "name": "TypeError",
+    "code": "ERR_INVALID_ARG_TYPE",
+    "message": "The \"options.halfLife\" property must be of type number. Received type string ('1')"
+   },
+   "thresholdNegative": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"options.threshold\" is out of range. It must be >= 0. Received -1"
+   },
+   "recordNegative": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"val\" is out of range. It must be >= 0 && <= 9007199254740991. Received -1"
+   },
+   "recordFraction": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"val\" is out of range. It must be an integer. Received 1.5"
+   },
+   "recordUnsafe": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"val\" is out of range. It must be >= 0 && <= 9007199254740991. Received 9_007_199_254_740_992"
+   },
+   "recordString": {
+    "name": "TypeError",
+    "code": "ERR_INVALID_ARG_TYPE",
+    "message": "The \"val\" argument must be of type number. Received type string ('1')"
+   },
+   "recordUndefined": {
+    "name": "TypeError",
+    "code": "ERR_INVALID_ARG_TYPE",
+    "message": "The \"val\" argument must be of type number. Received undefined"
+   },
+   "recordBigNegative": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "value is out of range"
+   },
+   "recordBigTooLarge": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "value is out of range"
+   },
+   "percentileZero": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"percentile\" is out of range. It must be > 0 && <= 100. Received 0"
+   },
+   "percentileAbove": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"percentile\" is out of range. It must be > 0 && <= 100. Received 100.5"
+   },
+   "percentileNaN": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"percentile\" is out of range. It must be > 0 && <= 100. Received NaN"
+   },
+   "percentileString": {
+    "name": "TypeError",
+    "code": "ERR_INVALID_ARG_TYPE",
+    "message": "The \"percentile\" argument must be of type number. Received type string ('50')"
+   },
+   "percentileBigIntZero": {
+    "name": "RangeError",
+    "code": "ERR_OUT_OF_RANGE",
+    "message": "The value of \"percentile\" is out of range. It must be > 0 && <= 100. Received 0"
+   },
+   "addNumber": {
+    "name": "TypeError",
+    "code": "ERR_INVALID_ARG_TYPE",
+    "message": "The \"other\" argument must be an instance of RecordableHistogram. Received type number (1)"
+   },
+   "addObject": {
+    "name": "TypeError",
+    "code": "ERR_INVALID_ARG_TYPE",
+    "message": "The \"other\" argument must be an instance of RecordableHistogram. Received an instance of Object"
+   },
+   "illegalConstructor": {
+    "name": "TypeError",
+    "code": "ERR_ILLEGAL_CONSTRUCTOR",
+    "message": "Illegal constructor"
+   },
+   "illegalSuperConstructor": {
+    "name": "TypeError",
+    "code": "ERR_ILLEGAL_CONSTRUCTOR",
+    "message": "Illegal constructor"
+   },
+   "invalidThisGetter": {
+    "name": "TypeError",
+    "code": "ERR_INVALID_THIS",
+    "message": "Value of \"this\" must be of type Histogram"
+   },
+   "invalidThisRecord": {
+    "name": "TypeError",
+    "code": "ERR_INVALID_THIS",
+    "message": "Value of \"this\" must be of type RecordableHistogram"
+   },
+   "invalidThisAdd": {
+    "name": "TypeError",
+    "code": "ERR_INVALID_THIS",
+    "message": "Value of \"this\" must be of type RecordableHistogram"
+   }
+  },
+  "shape": {
+   "constructorName": "RecordableHistogram",
+   "superName": "Histogram",
+   "inspectShallow": "[RecordableHistogram]",
+   "jsonString": "{\"count\":0,\"min\":9223372036854776000,\"max\":0,\"mean\":null,\"exceeds\":0,\"stddev\":null,\"skewness\":0,\"kurtosis\":0,\"ewmaMean\":0,\"ewmaStddev\":0,\"ewmaErrorRate\":0,\"percentiles\":{\"100\":0}}"
+  }
+ }
+}

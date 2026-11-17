@@ -5,6 +5,9 @@
 
 import { ERR_METHOD_NOT_IMPLEMENTED } from 'node-internal:internal_errors';
 import { default as util } from 'node-internal:util';
+import { createHistogram } from 'node-internal:perf_hooks_histogram';
+
+export { createHistogram };
 
 export const constants = Object.freeze({
   // GC type constants
@@ -66,10 +69,6 @@ export function timerify<T extends (...params: unknown[]) => unknown>(
 // Re-export globalThis.performance which includes nodeTiming when the
 // enable_nodejs_perf_hooks_module flag is enabled (handled in C++).
 export const performance = globalThis.performance;
-
-export function createHistogram(): void {
-  throw new ERR_METHOD_NOT_IMPLEMENTED('createHistogram');
-}
 
 export function monitorEventLoopDelay(): void {
   throw new ERR_METHOD_NOT_IMPLEMENTED('monitorEventLoopDelay');
