@@ -253,7 +253,9 @@ impl<'s> IoContext<'s> {
     /// `map` returns when called with the value it is fulfilled with, as C++
     /// `IoContext::awaitJs(js, promise, func)` does. `map` runs in the reaction to the promise,
     /// under the isolate lock. It is `Copy`, so that what it captures holds no GC references, and
-    /// `Send`, as the reactions' data must be.
+    /// `Send`, as the reactions' data must be. What it returns holds no GC references either
+    /// ([`jsg::HoldsNoGcReferences`]), as the result of C++ `awaitJs()` is a `kj::Promise`, which
+    /// holds no JavaScript handles: the wait keeps it where nothing traces it.
     ///
     /// The future fails with a [`cxx::KjException`], the `kj::Exception` C++ fails with, so that
     /// an exception that C++ created, such as the abort's, reaches C++ as it is.
@@ -316,7 +318,7 @@ impl<'s> IoContext<'s> {
         map: M,
     ) -> jsg::Result<AwaitJs<T>>
     where
-        T: Send + 'static,
+        T: jsg::HoldsNoGcReferences + 'static,
         M: Copy
             + Send
             + 'static
@@ -358,7 +360,7 @@ impl<'s> IoContext<'s> {
         promise: impl Into<v8::Local<'s, v8::Promise>>,
     ) -> jsg::Result<AwaitJs<T>>
     where
-        T: for<'a> jsg::FromJS<'a, ResultType = T> + Send + 'static,
+        T: for<'a> jsg::FromJS<'a, ResultType = T> + jsg::HoldsNoGcReferences + 'static,
     {
         self.await_js(lock, promise, |lock, value| T::from_js(lock, value))
     }
@@ -747,6 +749,10 @@ struct AwaitJsSender<T> {
     abort_watcher: KjOwn<bridge::AbortWatcher>,
 }
 
+// The sender's own fields are C++ objects and an `Arc` of the wait's state, which holds GC
+// references only if `T` does, which the macro bounds out.
+jsg::jsg_traced!(<T> AwaitJsSender<T>);
+
 impl<T> AwaitJsSender<T> {
     /// Settles the wait with `state`, then reports `outcome` for async tracing, in that order, as
     /// `AwaitJsFulfiller` does.
@@ -879,9 +885,17 @@ struct AwaitJsReaction<T, M> {
     map: M,
 }
 
-// A `Copy` `map` holds no `jsg::Rc` or `TracedGlobal`, and an `IoOwned` holds no JavaScript
-// handles.
-jsg::jsg_traced!(<T, M: Copy> AwaitJsReaction<T, M>);
+// A `Copy` `map` holds no `jsg::Rc` or `TracedGlobal`, neither of which is `Copy`, and an `IoOwned`
+// holds no JavaScript handles. Written out rather than with `jsg_traced!`, which would bound `M` by
+// `HoldsNoGcReferences`, which a closure or a function item can't implement.
+impl<T: jsg::HoldsNoGcReferences, M: Copy + Send> jsg::Traced for AwaitJsReaction<T, M> {
+    fn trace(&self, _visitor: &mut v8::GcVisitor) {}
+}
+
+impl<T: jsg::HoldsNoGcReferences, M: Copy + Send> jsg::HoldsNoGcReferences
+    for AwaitJsReaction<T, M>
+{
+}
 
 /// The reaction to the fulfillment of the promise that [`IoContext::await_js`] waits for.
 fn await_js_on_fulfilled<'a, T, M>(
