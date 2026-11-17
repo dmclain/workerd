@@ -1287,8 +1287,9 @@ class ContainerClient::DockerPort final: public rpc::Container::Port::Server,
 
 namespace {
 
-// UDP flows use RFC 9298 connect-udp over HTTP/1.1 to the sidecar's ingress listener, then carry
-// RFC 9297 DATAGRAM capsules. These limits match proxy-everything's.
+// UDP flows open with the same CONNECT to the sidecar's ingress listener as TCP ports, plus
+// `X-Dst-Protocol: udp`, then carry RFC 9297 DATAGRAM capsules. These limits match
+// proxy-everything's.
 constexpr size_t MAX_UDP_PAYLOAD_SIZE = 1500;
 
 // A context ID varint plus the payload; bounds buffering for every capsule type.
@@ -1296,7 +1297,6 @@ constexpr uint64_t MAX_CAPSULE_VALUE_SIZE = MAX_UDP_PAYLOAD_SIZE + 8;
 
 constexpr uint64_t CAPSULE_TYPE_DATAGRAM = 0;
 constexpr size_t MAX_PENDING_UP_BYTES = 256 * 1024;
-constexpr size_t MAX_RESPONSE_HEAD_SIZE = 8 * 1024;
 constexpr size_t DOWN_READ_BUFFER_SIZE = 64 * 1024;
 
 // Parses a QUIC variable-length integer (RFC 9000 section 16). Returns none until `bytes` holds
@@ -1345,8 +1345,8 @@ kj::Maybe<Capsule> tryParseCapsule(kj::ArrayPtr<const kj::byte> bytes) {
   auto length = KJ_UNWRAP_OR(
       tryParseVarint(bytes.slice(typeSize, bytes.size()), lengthSize), return kj::none);
 
-  KJ_REQUIRE(length <= MAX_CAPSULE_VALUE_SIZE,
-      "connect-udp capsule from the container sidecar is too long", length);
+  KJ_REQUIRE(length <= MAX_CAPSULE_VALUE_SIZE, "UDP capsule from the container sidecar is too long",
+      length);
 
   auto headerSize = typeSize + lengthSize;
   if (bytes.size() - headerSize < length) {
@@ -1370,42 +1370,6 @@ kj::Maybe<Capsule> tryParseCapsule(kj::ArrayPtr<const kj::byte> bytes) {
   return capsule;
 }
 
-kj::Maybe<size_t> findResponseHeadEnd(kj::ArrayPtr<const kj::byte> bytes) {
-  for (size_t i = 0; i + 4 <= bytes.size(); ++i) {
-    if (memcmp(bytes.begin() + i, "\r\n\r\n", 4) == 0) {
-      return i;
-    }
-  }
-
-  return kj::none;
-}
-
-constexpr kj::StringPtr UDP_SIDECAR_UPDATE_HINT =
-    "If the sidecar does not support UDP ports, update your container tooling (for example "
-    "Wrangler) so that it uses a newer container sidecar image."_kj;
-
-void requireConnectUdpAccepted(
-    const kj::HttpHeaders::ResponseOrProtocolError& parsed, const kj::HttpHeaders& headers) {
-  KJ_SWITCH_ONEOF(parsed) {
-    KJ_CASE_ONEOF(response, kj::HttpHeaders::Response) {
-      auto upgrade = headers.get(kj::HttpHeaderId::UPGRADE).orDefault(""_kj);
-      if (response.statusCode == 101 && strcaseeq(upgrade, "connect-udp"_kj)) {
-        return;
-      }
-
-      JSG_FAIL_REQUIRE(Error,
-          "connect(): The container's network sidecar did not accept the UDP flow: [",
-          response.statusCode, "] ", response.statusText, ". ", UDP_SIDECAR_UPDATE_HINT);
-    }
-    KJ_CASE_ONEOF(error, kj::HttpHeaders::ProtocolError) {
-      JSG_FAIL_REQUIRE(Error,
-          "connect(): The container's network sidecar answered the UDP flow with an invalid "
-          "response: ",
-          error.description, ". ", UDP_SIDECAR_UPDATE_HINT);
-    }
-  }
-}
-
 // One UDP flow through the sidecar. The tunnel is never half-closed: it closes when the flow
 // ends.
 class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHandler {
@@ -1416,7 +1380,7 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
   // head as early data.
   kj::Promise<void> open(kj::Network& network, uint16_t ingressHostPort, uint16_t containerPort) {
     try {
-      co_await connectAndUpgrade(network, ingressHostPort, containerPort);
+      co_await connectThroughSidecar(network, ingressHostPort, containerPort);
     } catch (...) {
       auto exception = kj::getCaughtExceptionAsKj();
 
@@ -1473,6 +1437,9 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
   enum class DownSignal { NONE, ABORT };
 
   rpc::DatagramStream::Client down;
+
+  // Owns the socket that `connection` tunnels through, so it is declared first and outlives it.
+  kj::Maybe<kj::Own<kj::HttpClient>> httpClient;
   kj::Maybe<kj::Own<kj::AsyncIoStream>> connection;
   kj::Vector<kj::byte> pending;
   kj::Vector<kj::Own<kj::PromiseFulfiller<void>>> spaceWaiters;
@@ -1480,6 +1447,11 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
   bool upEnded = false;
   bool downEnded = false;
   kj::Maybe<kj::Exception> failure;
+
+  // Set once the sidecar answers 2xx. Until then a failed early write is held here, because a
+  // sidecar that refuses the flow may close the tunnel before its status is read.
+  bool accepted = false;
+  kj::Maybe<kj::Exception> earlyWriteFailure;
 
   // Wraps every operation on `connection` so that fail() can destroy it.
   kj::Canceler canceler;
@@ -1491,7 +1463,8 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
     }
   }
 
-  kj::Promise<void> connectAndUpgrade(
+  // The same CONNECT as DockerPort::connect(), plus the header that selects UDP.
+  kj::Promise<void> connectThroughSidecar(
       kj::Network& network, uint16_t ingressHostPort, uint16_t containerPort) {
     auto address =
         co_await canceler.wrap(network.parseAddress(kj::str("127.0.0.1:", ingressHostPort)));
@@ -1500,50 +1473,46 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
     auto stream = co_await canceler.wrap(address->connect());
     throwIfFailed();
 
-    auto& conn = *connection.emplace(kj::mv(stream));
+    auto dstAddr = kj::str("127.0.0.1:", containerPort);
 
-    auto head = kj::str("GET /.well-known/masque/udp/127.0.0.1/", containerPort,
-        "/ HTTP/1.1\r\n"
-        "Host: 127.0.0.1:",
-        containerPort,
-        "\r\n"
-        "Connection: Upgrade\r\n"
-        "Upgrade: connect-udp\r\n"
-        "Capsule-Protocol: ?1\r\n"
-        "\r\n");
-    kj::Vector<kj::byte> firstWrite(head.size() + pending.size());
-    firstWrite.addAll(head.asBytes());
-    firstWrite.addAll(pending);
-    pending = kj::mv(firstWrite);
+    kj::HttpHeaderTable::Builder headerTableBuilder;
+    auto xDstAddrHeader = headerTableBuilder.add("X-Dst-Addr");
+    auto xDstProtocolHeader = headerTableBuilder.add("X-Dst-Protocol");
+    auto headerTable = headerTableBuilder.build();
+    kj::HttpHeaders headers(*headerTable);
+    headers.set(xDstAddrHeader, kj::str(dstAddr));
+    headers.set(xDstProtocolHeader, "udp"_kj);
+
+    auto& client = *httpClient.emplace(
+        kj::newHttpClient(*headerTable, *stream).attach(kj::mv(stream), kj::mv(headerTable)));
+    auto request = client.connect(dstAddr, headers, {});
+    auto& conn = *connection.emplace(kj::mv(request.connection));
+
+    // The tunnel holds writes only until the request head is written, so queued datagrams follow
+    // it as early data without waiting for the status.
     startWriting();
 
-    auto buffer = kj::heapArray<kj::byte>(DOWN_READ_BUFFER_SIZE);
-    size_t filled = 0;
-    kj::Maybe<size_t> headEnd;
+    auto status = co_await canceler.wrap(kj::mv(request.status));
+    throwIfFailed();
 
-    while (headEnd == kj::none) {
-      KJ_REQUIRE(filled < MAX_RESPONSE_HEAD_SIZE, "connect-udp response head is too large");
+    if (status.statusCode < 200 || status.statusCode >= 300) {
+      KJ_IF_SOME(errorBody, status.errorBody) {
+        auto errorBodyText = co_await canceler.wrap(errorBody->readAllText());
+        JSG_FAIL_REQUIRE(Error,
+            "Connecting to container UDP port through proxy-everything failed: [",
+            status.statusCode, "] ", status.statusText, " ", errorBodyText);
+      }
 
-      auto n = co_await canceler.wrap(
-          conn.tryRead(buffer.begin() + filled, 1, MAX_RESPONSE_HEAD_SIZE - filled));
-      throwIfFailed();
-
-      JSG_REQUIRE(n > 0, Error,
-          "connect(): The container's network sidecar closed the connection before accepting the "
-          "UDP flow. ",
-          UDP_SIDECAR_UPDATE_HINT);
-
-      filled += n;
-      headEnd = findResponseHeadEnd(buffer.first(filled));
+      JSG_FAIL_REQUIRE(Error, "Connecting to container UDP port through proxy-everything failed: [",
+          status.statusCode, "] ", status.statusText);
     }
 
-    auto headSize = KJ_ASSERT_NONNULL(headEnd);
-    kj::HttpHeaderTable headerTable;
-    kj::HttpHeaders headers(headerTable);
-    requireConnectUdpAccepted(
-        headers.tryParseResponse(buffer.first(headSize + 2).asChars()), headers);
+    KJ_IF_SOME(exception, earlyWriteFailure) {
+      kj::throwFatalException(kj::mv(exception));
+    }
 
-    tasks.add(canceler.wrap(readLoop(conn, kj::mv(buffer), headSize + 4, filled)).then([this]() {
+    accepted = true;
+    tasks.add(canceler.wrap(readLoop(conn)).then([this]() {
       fail(KJ_EXCEPTION(DISCONNECTED, "container ended the UDP flow"), DownSignal::NONE);
     }));
   }
@@ -1580,8 +1549,11 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
 
   // Delivers capsules from the sidecar to `down`. A buffer holds many capsules, so large reads
   // are parsed incrementally; every capsule fits after compaction.
-  kj::Promise<void> readLoop(
-      kj::AsyncIoStream& conn, kj::Array<kj::byte> buffer, size_t consumed, size_t filled) {
+  kj::Promise<void> readLoop(kj::AsyncIoStream& conn) {
+    auto buffer = kj::heapArray<kj::byte>(DOWN_READ_BUFFER_SIZE);
+    size_t consumed = 0;
+    size_t filled = 0;
+
     for (;;) {
       auto parsed = tryParseCapsule(buffer.slice(consumed, filled));
 
@@ -1622,6 +1594,7 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
     // Destroys every pending operation on the connection, so it can be closed here.
     canceler.cancel(exception);
     connection = kj::none;
+    httpClient = kj::none;
 
     for (auto& waiter: spaceWaiters) {
       waiter->reject(exception.clone());
@@ -1636,6 +1609,14 @@ class ConnectUdpFlow final: public kj::Refcounted, private kj::TaskSet::ErrorHan
   }
 
   void taskFailed(kj::Exception&& exception) override {
+    if (!accepted && failure == kj::none) {
+      if (earlyWriteFailure == kj::none) {
+        earlyWriteFailure = kj::mv(exception);
+      }
+
+      return;
+    }
+
     if (failure == kj::none && isInterestingException(exception)) {
       KJ_LOG(ERROR, "container UDP flow failed", exception);
     }

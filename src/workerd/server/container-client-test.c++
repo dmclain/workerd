@@ -306,19 +306,7 @@ KJ_TEST("ContainerCreateRequest omits empty container privileges") {
 
 // The UDP flow tests below run a fake proxy-everything sidecar on a loopback listener.
 
-constexpr kj::StringPtr EXPECTED_CONNECT_UDP_REQUEST =
-    "GET /.well-known/masque/udp/127.0.0.1/5353/ HTTP/1.1\r\n"
-    "Host: 127.0.0.1:5353\r\n"
-    "Connection: Upgrade\r\n"
-    "Upgrade: connect-udp\r\n"
-    "Capsule-Protocol: ?1\r\n"
-    "\r\n"_kj;
-
-constexpr kj::StringPtr CONNECT_UDP_ACCEPTED = "HTTP/1.1 101 Switching Protocols\r\n"
-                                               "Connection: Upgrade\r\n"
-                                               "Upgrade: connect-udp\r\n"
-                                               "Capsule-Protocol: ?1\r\n"
-                                               "\r\n"_kj;
+constexpr kj::StringPtr CONNECT_ACCEPTED = "HTTP/1.1 200 OK\r\n\r\n"_kj;
 
 struct DownEvent {
   kj::StringPtr kind;
@@ -400,7 +388,10 @@ struct UdpFlowTest {
       head.add(next);
     }
 
-    KJ_EXPECT(kj::heapString(head.asPtr()) == EXPECTED_CONNECT_UDP_REQUEST);
+    auto text = kj::heapString(head.asPtr());
+    KJ_EXPECT(text.startsWith("CONNECT 127.0.0.1:5353 HTTP/1.1\r\n"), text);
+    KJ_EXPECT(text.contains("\r\nX-Dst-Addr: 127.0.0.1:5353\r\n"), text);
+    KJ_EXPECT(text.contains("\r\nX-Dst-Protocol: udp\r\n"), text);
     return conn;
   }
 
@@ -480,7 +471,7 @@ KJ_TEST("UDP flow sends early datagrams after the request head and round trips p
   KJ_EXPECT(test.readDatagram(*conn) == "z"_kj);
 
   kj::Vector<kj::byte> reply;
-  reply.addAll(CONNECT_UDP_ACCEPTED.asBytes());
+  reply.addAll(CONNECT_ACCEPTED.asBytes());
   appendDatagram(reply, ""_kj);
   appendDatagram(reply, "x"_kj);
   appendDatagram(reply, largest);
@@ -499,17 +490,52 @@ KJ_TEST("UDP flow sends early datagrams after the request head and round trips p
   KJ_EXPECT(test.readDatagram(*conn) == "after"_kj);
 }
 
-KJ_TEST("UDP flow fails connect when the sidecar does not support connect-udp") {
+KJ_TEST("UDP flow fails connect with the sidecar's status when it refuses the flow") {
+  UdpFlowTest test;
+  auto connect = test.connect();
+  auto up = connect.getUp();
+  auto early = sendUp(up, "early"_kj).eagerlyEvaluate([](kj::Exception&&) {});
+  auto conn = test.accept();
+  KJ_EXPECT(test.readDatagram(*conn) == "early"_kj);
+
+  // The sidecar closes the tunnel after the status. The early datagram was read first, so the
+  // close is a FIN and does not reset the status away.
+  conn->write("HTTP/1.1 400 Bad Request\r\nContent-Length: 11\r\n\r\nbad target."_kj.asBytes())
+      .wait(test.waitScope);
+  conn = nullptr;
+
+  KJ_EXPECT_THROW_MESSAGE(
+      "Connecting to container UDP port through proxy-everything failed: [400] Bad Request bad "
+      "target.",
+      connect.wait(test.waitScope));
+}
+
+KJ_TEST("UDP flow decodes capsules split across reads") {
   UdpFlowTest test;
   auto connect = test.connect();
   auto conn = test.accept();
 
-  conn->write("HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n"_kj.asBytes())
-      .wait(test.waitScope);
+  kj::Vector<kj::byte> capsules;
+  appendDatagram(capsules, "first"_kj);
+  auto split = capsules.size() + 1;
+  appendDatagram(capsules, "second"_kj);
 
-  KJ_EXPECT_THROW_MESSAGE("did not accept the UDP flow: [404] Not Found. If the sidecar does not "
-                          "support UDP ports, update your container tooling",
-      connect.wait(test.waitScope));
+  // The second capsule is cut after its type, so the first read ends inside it.
+  kj::Vector<kj::byte> reply;
+  reply.addAll(CONNECT_ACCEPTED.asBytes());
+  reply.addAll(capsules.asPtr().first(split));
+  conn->write(reply.asPtr()).wait(test.waitScope);
+  connect.wait(test.waitScope);
+
+  auto first = test.down.next(test.waitScope);
+  KJ_EXPECT(first.kind == "datagram"_kj);
+  KJ_EXPECT(first.payload == "first"_kj);
+
+  conn->write(capsules.asPtr().slice(split, capsules.size())).wait(test.waitScope);
+
+  auto second = test.down.next(test.waitScope);
+  KJ_EXPECT(second.kind == "datagram"_kj);
+  KJ_EXPECT(second.payload == "second"_kj);
 }
 
 KJ_TEST("UDP flow skips unknown capsules, drops other contexts and aborts on oversized capsules") {
@@ -518,14 +544,14 @@ KJ_TEST("UDP flow skips unknown capsules, drops other contexts and aborts on ove
   auto conn = test.accept();
 
   kj::Vector<kj::byte> reply;
-  reply.addAll(CONNECT_UDP_ACCEPTED.asBytes());
+  reply.addAll(CONNECT_ACCEPTED.asBytes());
   appendCapsule(reply, 0x2a, "ignored"_kj.asBytes());
   appendDatagram(reply, "other context"_kj, 1);
   appendDatagram(reply, "good"_kj);
   appendTestVarint(reply, 0);
   appendTestVarint(reply, 1509);
 
-  KJ_EXPECT_LOG(ERROR, "connect-udp capsule from the container sidecar is too long");
+  KJ_EXPECT_LOG(ERROR, "UDP capsule from the container sidecar is too long");
   conn->write(reply.asPtr()).wait(test.waitScope);
 
   connect.wait(test.waitScope);
@@ -545,7 +571,7 @@ KJ_TEST("UDP flow keeps receiving after end() and ends down when the sidecar clo
   auto up = connect.getUp();
   auto conn = test.accept();
 
-  conn->write(CONNECT_UDP_ACCEPTED.asBytes()).wait(test.waitScope);
+  conn->write(CONNECT_ACCEPTED.asBytes()).wait(test.waitScope);
   connect.wait(test.waitScope);
 
   up.endRequest().send().wait(test.waitScope);
@@ -570,7 +596,7 @@ KJ_TEST("UDP flow closes the tunnel when up is released") {
   {
     auto connect = test.connect();
     conn = test.accept();
-    conn->write(CONNECT_UDP_ACCEPTED.asBytes()).wait(test.waitScope);
+    conn->write(CONNECT_ACCEPTED.asBytes()).wait(test.waitScope);
     connect.wait(test.waitScope);
   }
 
