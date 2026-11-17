@@ -1841,4 +1841,17 @@ struct CompatibilityFlags @0x8f8c1b68151b6cef {
   # caches as the snapshot recorded them, instead of invalidating them at startup. The snapshot is
   # collected with the Worker's files and packages already in place, so the caches still describe
   # them, and rebuilding them is a large part of startup.
+
+  formDataStandard @207 :Bool
+      $compatEnableFlag("formdata_standard")
+      $compatDisableFlag("formdata_legacy")
+      $compatEnableDate("2026-12-08");
+  # Makes FormData follow the XMLHttpRequest spec in three places:
+  #
+  # - `new FormData(form)` throws a TypeError for any argument other than `undefined`, since
+  #   Workers have no HTMLFormElement. Without the flag, arguments are ignored.
+  # - A Blob added with `append()` or `set()` without a filename becomes a File named "blob", which
+  #   is also the filename sent in a multipart body. Without the flag, it is named after the entry.
+  # - A File added with a new filename keeps its `lastModified`. Without the flag, it is set to the
+  #   current time.
 }
