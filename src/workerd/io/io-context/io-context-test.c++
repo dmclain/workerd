@@ -2069,9 +2069,10 @@ size_t abortWatchers() {
 // A wait of C++ IoContext::awaitJs(), recorded as await_js_start() records Rust's.
 struct RecordedCppAwaitJs {
   kj::Maybe<jsg::Promise<double>::Resolver> resolver;
-  kj::Maybe<kj::Promise<void>> wait;
   kj::String outcome = kj::str("pending");
   kj::Maybe<kj::Exception> error;
+  // Declared after what its continuations record into, so that it is destroyed first.
+  kj::Maybe<kj::Promise<void>> wait;
   // How many times the conversion ran, as awaited_js_map_runs() counts for Rust's.
   static inline uint mapRuns = 0;
 
@@ -2097,6 +2098,8 @@ struct RecordedCppAwaitJs {
   void waitHeld() {
     auto promise = KJ_ASSERT_NONNULL(kj::mv(held), "no held wait");
     held = kj::none;
+    // The continuations record into members of this object, which owns them through `wait`.
+    // NOLINTBEGIN(workerd-unsafe-continuation-capture)
     wait = kj::mv(promise)
                .then([&outcome = outcome](double value) {
       outcome = kj::str("fulfilled: ", value);
@@ -2104,6 +2107,7 @@ struct RecordedCppAwaitJs {
       outcome = kj::str("rejected: ", e.getDescription());
       error = kj::mv(e);
     }).eagerlyEvaluate(nullptr);
+    // NOLINTEND(workerd-unsafe-continuation-capture)
   }
 
   // Cancels the wait, recorded as Rust's cancelled wait is.
