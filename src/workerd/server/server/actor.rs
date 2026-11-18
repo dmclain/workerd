@@ -63,6 +63,7 @@ use crate::channels::WorkerInterface;
 use crate::channels::attach;
 use crate::cluster::ClusterNode;
 use crate::cluster::Committer;
+use crate::cluster::Count;
 use crate::cluster::Deadlines;
 use crate::cluster::Owned;
 use crate::cluster::Owner;
@@ -427,12 +428,17 @@ impl ActorNamespace {
     /// The channel of the actor with `id`, started on first use. `persistent` is recorded on the
     /// channel: whether stubs to it may be stored.
     pub fn channel(&self, id: KjOwn<ActorIdHandle>, persistent: Persistent) -> Rc<dyn Channel> {
-        self.channel_for(id, persistent, false)
+        self.channel_for(id, persistent, false, None)
     }
 
-    /// The channel of the actor with `id` for a peer's or the debug port's request.
-    pub fn peer_channel(&self, id: KjOwn<ActorIdHandle>) -> Rc<dyn Channel> {
-        self.channel_for(id, false, true)
+    /// The channel of the actor with `id` for the debug port's request, or with `session` a
+    /// peer's, which counts the requests started on it.
+    pub fn peer_channel(
+        &self,
+        id: KjOwn<ActorIdHandle>,
+        session: Option<Rc<Count>>,
+    ) -> Rc<dyn Channel> {
+        self.channel_for(id, false, true, session)
     }
 
     fn channel_for(
@@ -440,6 +446,7 @@ impl ActorNamespace {
         id: KjOwn<ActorIdHandle>,
         persistent: Persistent,
         remote: bool,
+        session: Option<Rc<Count>>,
     ) -> Rc<dyn Channel> {
         if self.cluster().is_some() {
             return Rc::new(RoutedChannel {
@@ -447,6 +454,7 @@ impl ActorNamespace {
                 id,
                 persistent,
                 remote,
+                session,
                 bound: Rc::default(),
             });
         }
@@ -884,6 +892,8 @@ struct RoutedChannel {
     persistent: Persistent,
     /// Whether its requests come from a peer (or the debug port).
     remote: bool,
+    /// The peer's session, which counts the requests started on it.
+    session: Option<Rc<Count>>,
     bound: Rc<RefCell<Option<Rc<Resolved>>>>,
 }
 
@@ -913,13 +923,19 @@ impl Channel for RoutedChannel {
             ffi::stamp_current_actor_cause(metadata.as_mut());
         }
         let cause = Cause::of_request(&metadata);
-        let counted = remote.then(|| namespace.cluster().map(|node| node.peer_request()));
+        let peer = remote && self.session.is_some();
+        let counted = match namespace.cluster() {
+            Some(node) if remote => Some(node.peer_request(self.session.as_ref())?),
+            _ => None,
+        };
         Ok(PromisedInterface::new(async move {
             // A peer's request that waited for a handoff is sent on to where the object went, so
-            // that it does not outlast its caller's retries. It binds nothing, so that the peer's
-            // next request is answered `moved` and finds the object itself (`resolve`). Any request
-            // a draining instance sends to a peer names it, so that the peer does not route it back
-            // here on a route from before the handoff.
+            // that it does not outlast its caller's retries, while there is time for it
+            // (`ClusterNode::relays_handed_off`); after that it is answered `moved`, nothing having
+            // run. The debug port's requests are always sent on. It binds nothing, so that the
+            // peer's next request is answered `moved` and finds the object itself (`resolve`). Any
+            // request a draining instance sends to a peer names it, so that the peer does not route
+            // it back here on a route from before the handoff.
             let mut forward = false;
             let resolved = loop {
                 // A resolution over a session known to be down would fail unsent: resolve again.
@@ -954,6 +970,13 @@ impl Channel for RoutedChannel {
                 // Nothing ran: once the object is gone, the request follows it.
                 let _ = handoff.wait_for(|done| *done).await;
                 forget(&bound, &resolved);
+                if peer
+                    && namespace
+                        .cluster()
+                        .is_some_and(|node| !node.relays_handed_off())
+                {
+                    return Err(moved("the Durable Object was handed off"));
+                }
                 forward = remote;
             };
             if matches!(&*resolved, Resolved::Remote(..))
